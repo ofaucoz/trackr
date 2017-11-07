@@ -50,12 +50,13 @@ public class TwitterBuilder {
 	private static final String ENC = "UTF-8";
 
 	
-	public void request() throws UnsupportedOperationException, IOException, OAuthMessageSignerException,
+	public void request(String url) throws UnsupportedOperationException, IOException, OAuthMessageSignerException,
 			OAuthExpectationFailedException, OAuthCommunicationException, JSONException {
 		OAuthConsumer oAuthConsumer = new CommonsHttpOAuthConsumer(consumerKey, consumerSecret);
 		oAuthConsumer.setTokenWithSecret(accessToken, accessTokenSecret);
 
-		HttpGet httpGet = new HttpGet("https://api.twitter.com/1.1/statuses/home_timeline.json");
+		//example url : https://api.twitter.com/1.1/statuses/home_timeline.json
+		HttpGet httpGet = new HttpGet(url);
 
 		oAuthConsumer.sign(httpGet);
 
@@ -78,7 +79,8 @@ public class TwitterBuilder {
 	public static void main(String[] args) {
 		try {
 			TwitterBuilder twitterBuilder = new TwitterBuilder();
-			twitterBuilder.request();
+			String url = "https://api.twitter.com/1.1/search/tweets.json?q=tugraz";
+			twitterBuilder.request(url);
 		} catch (Exception e) {
 			System.out.println(e);
 		}
