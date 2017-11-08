@@ -1,20 +1,22 @@
 "use strict";
 
-var map;
 var canvasLayer;
 var context;
 var resolutionScale = window.devicePixelRatio || 1;
-var londonCoords = new google.maps.LatLng(51.5, -0.12);
+var map;
 var geocoder;
+var markers;
+var defaultLocation = new google.maps.LatLng(51.5, -0.12);	//London coords
 
 function makeMap() {
 	var mapOptions = {
-	center: londonCoords,
+	center: defaultLocation,
 	zoom: 10,
 	mapTypeId: google.maps.MapTypeId.HYBRID
 	}
 	
 	map = new google.maps.Map(document.getElementById("map"), mapOptions);
+	markers = [];
 	geocoder = new google.maps.Geocoder;
 	
 	var clOptions = {
@@ -33,6 +35,7 @@ function makeMap() {
 			map: map,
 			title: 'Hello World!'
 		});
+		markers.push(marker);
 	} );
 }
 
@@ -59,7 +62,7 @@ function update() {
 	var offset = mapProjection.fromLatLngToPoint(canvasLayer.getTopLeft());
 	context.translate(-offset.x, -offset.y);
 	
-	var worldPoint = mapProjection.fromLatLngToPoint(londonCoords);
+	var worldPoint = mapProjection.fromLatLngToPoint(defaultLocation);
 	context.fillRect(worldPoint.x, worldPoint.y, 0.5, 0.5);
 	
 }
@@ -74,13 +77,17 @@ function searchUserCurrentLocation() {
 	}
 	
 	function search(position) {
-		//TODO
 		var pos = {
               lat: position.coords.latitude,
               lng: position.coords.longitude
         };
-		//alert("Pos is: " + pos.lat + " " + pos.lng);
-		map.setCenter(pos);		
+		map.setCenter(pos);
+		var marker = new google.maps.Marker ({
+			position: pos,
+			map: map,
+			title: 'Current Location'
+		});
+		markers.push(marker);		
 	}
 	
 	function handleGeolocationError() {
@@ -91,8 +98,8 @@ function searchUserCurrentLocation() {
 }
 
 function searchUserInputLocation() {
-	var userInput = document.getElementById('').value;
-	geocoder.gecode({'hmm': userInput}, function(results, status) {
+	var userInput = document.getElementById('search_address').value;
+	geocoder.geocode({'address': userInput}, function(results, status) {
 		if (status === 'OK') {
 			if (results[0]) {
 				map.setCenter(results[0].geometry.location);
@@ -101,6 +108,7 @@ function searchUserInputLocation() {
 					map: map,
 					title: 'Searched Location'
 				});
+				markers.push(marker);
 			}
 			else {
 				alert('Error: no results found');
@@ -112,15 +120,31 @@ function searchUserInputLocation() {
 	});
 }
 
+function resetMap(){
+	var userConfirmed = confirm('This will delete all your markers. Are you sure?');
+		if(userConfirmed){
+			map.setCenter(defaultLocation);
+			map.setZoom(10);
+			for (var i = 0; i < markers.length; i++) {
+				markers[i].setMap(null); 	//removes marker from map
+			}
+			markers = [];
+		}		
+}
+
 document.addEventListener('DOMContentLoaded', makeMap, false);   //Do I actually need this?
 
 window.onload = function () {
-	document.getElementById('search').addEventListener('click', function() {
-		searchUserInputLocation(geocoder, map, infowindow);
-	});
 	document.getElementById('find_me').addEventListener('click', function() {
 		searchUserCurrentLocation();
 	});
+	document.getElementById('search').addEventListener('click', function() {
+		searchUserInputLocation();
+	});
+	document.getElementById('reset').addEventListener('click', function() {
+		resetMap();
+	});
+	var autocomplete = new google.maps.places.Autocomplete(document.getElementById('search_address'));
 };
 
 //idea: draw Canvas circle with centre approx. location of Tweet
