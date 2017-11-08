@@ -5,8 +5,8 @@
 <head>
   
 	<meta charset="utf-8">
-	<title>Prototype Web App</title>
-	<meta name="description" content="#Trackr web app">
+	<title>#Trackr - Twitter geographical trends, visualised</title>
+	<meta name="description" content="#Trackr">
 	<meta name="author" content="Cat">
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
 	
@@ -36,8 +36,9 @@
         </div>
         <div class="navbar-collapse collapse">
           <ul class="nav navbar-nav navbar-right">
-            <li class='active'><a href="index.html">Map</a></li>
-            <li><a href="index.html">About</a></li>
+			<!-- TODO: sort links here, remember it should we a one-page app -->
+            <li class='active'><a href="#">Map</a></li>
+            <li><a href="#">About</a></li>
           </ul>
         </div>
       </div>
@@ -57,11 +58,26 @@
             <p>
               <label>
                 within
-                <select id='search_radius'>
-                  <option value='400'>2 blocks</option>
-                  <option value='805'>1/2 mile</option>
-                  <option value='1610'>1 mile</option>
-                  <option value='3220'>2 miles</option>
+                <select id='search_radius'>			  
+				  <!-- NOTE: these distances are approximate, need adjusting. TODO: also adjust zoom levels correspondingly.
+				  These are the zoom levels the template uses:
+                    if (self.searchRadius >= 1610000) map.setZoom(4); // 1,000 miles
+                    else if (self.searchRadius >= 805000) map.setZoom(5); // 500 miles
+                    else if (self.searchRadius >= 402500) map.setZoom(6); // 250 miles
+                    else if (self.searchRadius >= 161000) map.setZoom(7); // 100 miles
+                    else if (self.searchRadius >= 80500) map.setZoom(8); // 100 miles
+                    else if (self.searchRadius >= 40250) map.setZoom(9); // 100 miles
+                    else if (self.searchRadius >= 16100) map.setZoom(11); // 10 miles
+                    else if (self.searchRadius >= 8050) map.setZoom(12); // 5 miles
+                    else if (self.searchRadius >= 3220) map.setZoom(13); // 2 miles
+                    else if (self.searchRadius >= 1610) map.setZoom(14); // 1 mile
+                    else if (self.searchRadius >= 805) map.setZoom(15); // 1/2 mile
+                    else if (self.searchRadius >= 400) map.setZoom(16); // 1/4 mile
+                    else self.map.setZoom(17);    -->
+				  <option value='0.01'>1 km</option>
+                  <option value='0.05'>5 km</option>
+                  <option value='0.095'>10 km</option>
+                  <option value='0.5'>50 km</option>
                 </select>
               </label>
             </p>
@@ -98,51 +114,13 @@
 	<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa" crossorigin="anonymous"></script>
 
 	<script type='text/javascript'>
-      //<![CDATA[
+		//TODO: remove this?
         $(window).resize(function () {
           var h = $(window).height(),
             offsetTop = 105; // Calculate the top offset
         
           $('#map').css('height', (h - offsetTop));
         }).resize();
-        
-        /* $(function() {
-          var autocomplete = new google.maps.places.Autocomplete(document.getElementById('search_address'));
-      
-           $(':checkbox').click(function(){
-            myMap.doSearch();
-          });
-          $(':radio').click(function(){
-            myMap.doSearch();
-          });
-          
-          $('#search_radius').change(function(){
-            myMap.doSearch();
-          });
-          
-          $('#search').click(function(){
-            myMap.doSearch();
-          });
-          
-          $('#find_me').click(function(){
-            myMap.findMe(); 
-            return false;
-          });
-          
-          $('#reset').click(function(){
-            myMap.reset(); 
-            return false;
-          });
-          
-          $(":text").keydown(function(e){
-              var key =  e.keyCode ? e.keyCode : e.which;
-              if(key === 13) {
-                  $('#search').click();
-                  return false;
-              }
-          }); 
-        }); */
-      //]]>
     </script>
 	
 </body>
