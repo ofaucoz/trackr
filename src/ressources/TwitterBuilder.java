@@ -6,6 +6,7 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.Properties;
@@ -48,10 +49,6 @@ public class TwitterBuilder {
 	private String accessToken;
 	private String accessTokenSecret;
 
-	private static final String HMAC_SHA1 = "HmacSHA1";
-
-	private static final String ENC = "UTF-8";
-
 	public JSONObject request(String url) throws UnsupportedOperationException, IOException,
 			OAuthMessageSignerException, OAuthExpectationFailedException, OAuthCommunicationException, JSONException {
 		OAuthConsumer oAuthConsumer = new CommonsHttpOAuthConsumer(consumerKey, consumerSecret);
@@ -80,26 +77,25 @@ public class TwitterBuilder {
 
 	}
 
-	public void recurs_parsingJSON(JSONObject obj, JSONArray arr, String previous_key) throws JSONException {
+	public void recurs_parsingJSON(JSONObject obj, JSONArray arr, String previous_key, PrintWriter writer) throws JSONException {
 		if (obj == null && arr == null) {
-			System.out.println("prev_key : " + previous_key);
+			writer.println("prev_key : " + previous_key);
 		} else {
 			if (obj != null) {
 				//donable in a better way
 				Iterator<String> keys = obj.keys();
 				while (keys.hasNext()) {
 					String next_key = keys.next();
-					System.out.println("current key : " + next_key);
 					try {
 						// try to cast it as an array
 						JSONArray isArray = obj.getJSONArray(previous_key + "," + next_key);
-						this.recurs_parsingJSON(null, isArray, previous_key + "," + next_key);
+						this.recurs_parsingJSON(null, isArray, previous_key + "," + next_key, writer);
 					} catch (JSONException jsonE) {
 						try {
-							this.recurs_parsingJSON(obj.getJSONObject(next_key), null, previous_key + "," + next_key);
+							this.recurs_parsingJSON(obj.getJSONObject(next_key), null, previous_key + "," + next_key, writer);
 						}
 						catch(JSONException e) {
-							this.recurs_parsingJSON(null, null, previous_key + "," + next_key);
+							this.recurs_parsingJSON(null, null, previous_key + "," + next_key, writer);
 						}
 					}
 
@@ -110,17 +106,16 @@ public class TwitterBuilder {
 					Iterator<String> keys = current_obj.keys();
 					while (keys.hasNext()) {
 						String next_key = keys.next();
-						System.out.println("current key : " + next_key);
 						try {
 							// try to cast it as an array
 							JSONArray isArray = current_obj.getJSONArray(previous_key + "," + next_key);
-							this.recurs_parsingJSON(null, isArray, previous_key + "," + next_key);
+							this.recurs_parsingJSON(null, isArray, previous_key + "," + next_key, writer);
 						} catch (JSONException jsonE) {
 							try {
-								this.recurs_parsingJSON(current_obj.getJSONObject(next_key), null, previous_key + "," + next_key);
+								this.recurs_parsingJSON(current_obj.getJSONObject(next_key), null, previous_key + "," + next_key, writer);
 							}
 							catch(JSONException e) {
-								this.recurs_parsingJSON(null, null, previous_key + "," + next_key);
+								this.recurs_parsingJSON(null, null, previous_key + "," + next_key, writer);
 							}
 						}
 
@@ -134,11 +129,12 @@ public class TwitterBuilder {
 
 	public static void main(String[] args) {
 		try {
+			PrintWriter writer = new PrintWriter("get_path.txt", "UTF-8");
 			TwitterBuilder twitterBuilder = new TwitterBuilder();
 			String url = "https://api.twitter.com/1.1/search/tweets.json?q=tugraz";
 			JSONObject result = twitterBuilder.request(url);
 			JSONArray statuses = result.getJSONArray("statuses");
-			twitterBuilder.recurs_parsingJSON(null, statuses, "statuses");
+			twitterBuilder.recurs_parsingJSON(null, statuses, "statuses", writer);
 		} catch (Exception e) {
 			System.out.println(e);
 		}
