@@ -32,11 +32,12 @@
             <span class="icon-bar"></span>
             <span class="icon-bar"></span>
           </button>
-          <a class='navbar-brand' href='index.html'>#Trackr - Twitter geographical trends, visualised</a>
-        </div>
+          <a class='navbar-brand' href='#'><span class="d-inline-block align-top"><img alt="logo" src="logo.jpg">#Trackr</span></a>
+         <span class="navbar-text">Twitter geographical trends, visualised</span>
+		</div>
         <div class="navbar-collapse collapse">
           <ul class="nav navbar-nav navbar-right">
-			<!-- TODO: sort links here, remember it should we a one-page app -->
+			<!-- TODO: sort links here, remember it should be a one-page app -->
             <li class='active'><a href="#">Map</a></li>
             <li><a href="#">About</a></li>
           </ul>
@@ -49,11 +50,17 @@
         <div class='col-md-4'>
           <p>Lorem Ipsum</p>
           <div class='well'>
+			<h4>
+              #Hashtag
+            </h4>
+            <p>
+              <input class='form-control' id='hashtag' placeholder='Enter a Twitter #hashtag' type='text' />
+            </p>
             <h4>
               Location <small>(<a id='find_me' href='#'>find me</a>)</small>
             </h4>
             <p>
-              <input class='form-control' id='search_address' placeholder='Enter an address or an intersection' type='text' />
+              <input class='form-control' id='search_address' placeholder='Enter an address' type='text' />
             </p>
             <p>
               <label>
@@ -81,12 +88,19 @@
                 </select>
               </label>
             </p>
+			<h4>
+              Time Range
+            </h4>
+            <p>
+			  <label>Start : </label><input id="start_time" type="datetime-local"></input>
+			  </br><label>End : </label><input id="end_time" type="datetime-local"></input>
+            </p>
             <br />
-            <a class='btn btn-primary' id='search' href='#'>
+            <a tabindex="0" class='btn btn-primary' id='search' href='#' role="button" data-toggle="popover" data-trigger="focus" data-content="Please enter an address into the search box.">
               <i class='glyphicon glyphicon-search'></i>
               Search
             </a>
-            <a class='btn btn-default' id='reset' href='#'>
+            <a class='btn btn-default' id='reset' href='#' data-toggle="popover" data-trigger="manual" data-html="true" data-content='<div><p>This will delete all your markers. Are you sure?</p><p><button class="btn btn-danger" id="reset_confirm">OK</button><button class="btn btn-default" id="reset_cancel">Cancel</button></p></div>'>
               <i class='glyphicon glyphicon-repeat'></i>
               Reset
             </a>
@@ -114,13 +128,20 @@
 	<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa" crossorigin="anonymous"></script>
 
 	<script type='text/javascript'>
-		//TODO: remove this?
         $(window).resize(function () {
           var h = $(window).height(),
             offsetTop = 105; // Calculate the top offset
         
           $('#map').css('height', (h - offsetTop));
         }).resize();
+		
+		$(function () {
+			$('[data-toggle="tooltip"]').tooltip()  //enables Bootstrap tooltips
+		})
+		
+		$(function () {
+			$('[data-toggle="popover"]').popover()	//enables Bootstrap popovers
+		})
     </script>
 	
 </body>

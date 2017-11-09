@@ -5,6 +5,11 @@ a:hover { color: #4B58A6; }
   max-width: none;
 }
 
+.navbar .navbar-brand img {
+  max-width: 150%;
+  max-height: 150%;
+}
+
 .filter-box { 
   height: 15px; 
   width: 15px;  
