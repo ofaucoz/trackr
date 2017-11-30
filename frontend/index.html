@@ -95,6 +95,12 @@
 			  <label>Start : </label><input id="start_time" type="datetime-local"></input>
 			  </br><label>End : </label><input id="end_time" type="datetime-local"></input>
             </p>
+			<h4> Map Style </h4>
+			<p>
+			<select id="map_style" onchange="updateMapStyle()">
+				<!-- filled with Javascript from styles array on window load -->
+			</select>
+			</p>
             <br />
             <a tabindex="0" class='btn btn-primary' id='search' href='#' role="button" data-toggle="popover" data-trigger="focus" data-content="Please enter an address into the search box.">
               <i class='glyphicon glyphicon-search'></i>
