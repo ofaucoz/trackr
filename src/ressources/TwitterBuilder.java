@@ -26,13 +26,12 @@ import oauth.signpost.exception.OAuthExpectationFailedException;
 import oauth.signpost.exception.OAuthMessageSignerException;
 
 public class TwitterBuilder {
-	
+
 	private String consumerKey;
 	private String consumerSecret;
 	private String accessToken;
 	private String accessTokenSecret;
-	private Map<String, Object> json_values;
-	
+
 	public TwitterBuilder() throws IOException {
 		super();
 		Properties prop = new Properties();
@@ -47,7 +46,6 @@ public class TwitterBuilder {
 		consumerSecret = prop.getProperty("consumerSecret");
 		accessToken = prop.getProperty("accessToken");
 		accessTokenSecret = prop.getProperty("accessTokenSecret");
-		json_values = new HashMap<String, Object>();
 	}
 
 	public JSONObject request(String url) throws UnsupportedOperationException, IOException,
@@ -74,16 +72,38 @@ public class TwitterBuilder {
 		JSONObject obj = new JSONObject(builder.toString());
 		System.out.println();
 
-		return obj;	
+		return obj;
 
 	}
 
-	public void recurs_parsingJSON(JSONObject obj, JSONArray arr, String previous_key, ArrayList<String> all_path) throws JSONException {
+	public void getValues(JSONArray arr, ArrayList<String> path_list) throws NumberFormatException, JSONException {
+		// json_values = new HashMap<String, Object>();
+		int current_tweet_id = -1;
+		Map<String, Object> json_values = new HashMap<String, Object>();
+		for (String path : path_list) {
+			String[] list = path.split("\\.");
+			JSONObject current_tweet = (JSONObject) arr.get(Integer.parseInt(list[0]));
+			JSONObject last_object = current_tweet;
+			for (int i = 1; i < list.length; i++) {
+				try {
+					last_object = last_object.getJSONObject(list[i]);
+				} catch (JSONException e) {
+					json_values.put(path, last_object.get(list[i]));
+					//System.out.println("path : " + path + " value : " + last_object.get(list[i]));
+				}
+			}
+			current_tweet_id = Integer.parseInt(list[0]);
+		}
+		System.out.println(json_values);
+	}
+
+	public void recurs_parsingJSON(JSONObject obj, JSONArray arr, String previous_key, ArrayList<String> all_path)
+			throws JSONException {
 		if (obj == null && arr == null) {
 			all_path.add(previous_key);
 		} else {
 			if (obj != null) {
-				//donable in a better way
+				// donable in a better way
 				Iterator<String> keys = obj.keys();
 				while (keys.hasNext()) {
 					String next_key = keys.next();
@@ -93,9 +113,9 @@ public class TwitterBuilder {
 						this.recurs_parsingJSON(null, isArray, previous_key + "." + next_key, null);
 					} catch (JSONException jsonE) {
 						try {
-							this.recurs_parsingJSON(obj.getJSONObject(next_key), null, previous_key + "." + next_key, all_path);
-						}
-						catch(JSONException e) {
+							this.recurs_parsingJSON(obj.getJSONObject(next_key), null, previous_key + "." + next_key,
+									all_path);
+						} catch (JSONException e) {
 							this.recurs_parsingJSON(null, null, previous_key + "." + next_key, all_path);
 						}
 					}
@@ -113,9 +133,9 @@ public class TwitterBuilder {
 							this.recurs_parsingJSON(null, isArray, previous_key + "." + next_key, all_path);
 						} catch (JSONException jsonE) {
 							try {
-								this.recurs_parsingJSON(current_obj.getJSONObject(next_key), null, previous_key + "." + next_key, all_path);
-							}
-							catch(JSONException e) {
+								this.recurs_parsingJSON(current_obj.getJSONObject(next_key), null,
+										previous_key + "." + next_key, all_path);
+							} catch (JSONException e) {
 								this.recurs_parsingJSON(null, null, previous_key + "." + next_key, all_path);
 							}
 						}
@@ -137,9 +157,9 @@ public class TwitterBuilder {
 			JSONArray statuses = result.getJSONArray("statuses");
 			for (int i = 0; i < statuses.length(); i++) {
 				JSONObject current_obj = statuses.getJSONObject(i);
-				twitterBuilder.recurs_parsingJSON(current_obj, null, Integer.toString(i), path);				
+				twitterBuilder.recurs_parsingJSON(current_obj, null, Integer.toString(i), path);
 			}
-			System.out.println(path);
+			twitterBuilder.getValues(statuses, path);
 		} catch (Exception e) {
 			System.out.println(e);
 		}
