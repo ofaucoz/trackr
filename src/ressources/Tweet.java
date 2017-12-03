@@ -12,6 +12,8 @@ import javax.persistence.Table;
 import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
 
+import org.hibernate.Session;
+
 @javax.persistence.Entity
 @Table(name = "tweet")
 public class Tweet {
@@ -20,7 +22,7 @@ public class Tweet {
 	public Tweet(String in_reply_to_status_id_str, String in_reply_to_status_id, Date created_at, String source,
 			int retweet_count, String retweeted, String geo, String in_reply_to_screen_name, String is_quote_status,
 			int favorite_count, int tweet_id, String tweet_text, String place, String lang, boolean favorited,
-			boolean possibly_sensitive, String coordinates, boolean truncated, String contributors, User user, int id) {
+			boolean possibly_sensitive, String coordinates, boolean truncated, String contributors, User user) {
 		super();
 		this.in_reply_to_status_id_str = in_reply_to_status_id_str;
 		this.in_reply_to_status_id = in_reply_to_status_id;
@@ -42,7 +44,6 @@ public class Tweet {
 		this.truncated = truncated;
 		this.contributors = contributors;
 		this.user = user;
-		this.id = id;
 	}
 
 	@Column(name = "in_reply_to_status_id_str")
@@ -279,5 +280,24 @@ public class Tweet {
 	public void setId(int id) {
 		this.id = id;
 	}
+	
+
+	public static void main(String[] args) {
+		Session session = SFactory.getSession();
+		
+		Entities e = new Entities("test", "test", "test", "test");
+		User u = new User(0, 2, "test",2,"test",true,2,"test",new Date(2013,12,1,1,1), true, "test", true, "test", "test", true,
+				"test", "test", true,"test", "test", true, "test","test", "test", true, "test","test", e, 2, true,2, true, true, true,
+				"test", "test", "test", true);
+		Tweet t = new Tweet("test", "test", new Date(2013,12,1,1,1), "test",2, "test", "test", "test","test",4, 2, "test", "test", "test", true,
+				true, "test", true, "test", u);
+		session.beginTransaction();
+		session.saveOrUpdate(e);
+		session.saveOrUpdate(u);
+		session.saveOrUpdate(t);
+		session.getTransaction().commit();
+		System.out.println(t.getFavorite_count());
+		session.close();
+}
 
 }
