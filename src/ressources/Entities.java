@@ -17,11 +17,13 @@ public class Entities {
 		this.user_mentions = user_mentions;
 		this.symbols = symbols;
 	}
+	
+	public Entities() {}
 
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	@Column(name = "id", unique = true, nullable = false)
-	private int id;
+	private Integer id;
 	
 	@Column(name = "urls")
 	private String urls;
@@ -35,11 +37,11 @@ public class Entities {
 	@Column(name = "symbols")
 	private String symbols;
 
-	public int getId() {
+	public Integer getId() {
 		return id;
 	}
 
-	public void setId(int id) {
+	public void setId(Integer id) {
 		this.id = id;
 	}
 

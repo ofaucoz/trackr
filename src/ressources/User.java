@@ -16,16 +16,16 @@ import javax.persistence.TemporalType;
 @Table(name = "user")
 public class User {
 	
-	public User(int utc_offset, int friends_count, String profile_image_url_https, int listed_count,
-			String profile_background_image_url, boolean default_profile_image, int favourites_count,
-			String description, Date created_at, boolean is_translator, String profile_background_image_url_https,
-			boolean is_protected, String screen_name, String id_str, boolean geo_enabled,
-			String profile_background_color, String lang, boolean has_extended_profile,
-			String profile_sidebar_border_color, String profile_text_color, boolean verified, String profile_image_url,
-			String time_zone, String url, boolean contributors_enabled, String profile_backgroung_title,
-			String profile_banner_url, Entities user, int statuses_count, boolean follow_request_sent,
-			int followers_count, boolean profile_use_background_image, boolean default_profile, boolean following,
-			String name, String location, String profile_sidebar_fill_color, boolean notifications) {
+	public User(Integer utc_offset, Integer friends_count, String profile_image_url_https, Integer listed_count,
+			String profile_background_image_url, Boolean default_profile_image, Integer favourites_count,
+			String description, Date created_at, Boolean is_translator, String profile_background_image_url_https,
+			Boolean is_protected, String screen_name, String id_str, Boolean geo_enabled,
+			String profile_background_color, String lang, Boolean has_extended_profile,
+			String profile_sidebar_border_color, String profile_text_color, Boolean verified, String profile_image_url,
+			String time_zone, String url, Boolean contributors_enabled, String profile_backgroung_title,
+			String profile_banner_url, Integer statuses_count, Boolean follow_request_sent,
+			Integer followers_count, Boolean profile_use_background_image, Boolean default_profile, Boolean following,
+			String name, String location, String profile_sidebar_fill_color, Boolean notifications) {
 		super();
 		this.utc_offset = utc_offset;
 		this.friends_count = friends_count;
@@ -54,7 +54,6 @@ public class User {
 		this.contributors_enabled = contributors_enabled;
 		this.profile_backgroung_title = profile_backgroung_title;
 		this.profile_banner_url = profile_banner_url;
-		this.user = user;
 		this.statuses_count = statuses_count;
 		this.follow_request_sent = follow_request_sent;
 		this.followers_count = followers_count;
@@ -66,32 +65,34 @@ public class User {
 		this.profile_sidebar_fill_color = profile_sidebar_fill_color;
 		this.notifications = notifications;
 	}
+	
+	public User() {}
 
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	@Column(name = "id", unique = true, nullable = false)
-	private int id;
+	private Integer id;
 	
 	@Column(name = "utc_offset")
-	private int utc_offset;
+	private Integer utc_offset;
 
 	@Column(name = "friends_count")
-	private int friends_count;
+	private Integer friends_count;
 	
 	@Column(name = "profile_image_url_https")
 	private String profile_image_url_https;
 	
 	@Column(name = "listed_count")
-	private int listed_count;
+	private Integer listed_count;
 	
 	@Column(name = "profile_background_image_url")
 	private String profile_background_image_url;
 	
 	@Column(name = "default_profile_image")
-	private boolean default_profile_image;
+	private Boolean default_profile_image;
 	
 	@Column(name = "favourites_count")
-	private int favourites_count;
+	private Integer favourites_count;
 	
 	@Column(name = "description")
 	private String description;
@@ -101,13 +102,13 @@ public class User {
 	private Date created_at;
 	
 	@Column(name = "is_translator")
-	private boolean is_translator;
+	private Boolean is_translator;
 	
 	@Column(name = "profile_background_image_url_https")
 	private String profile_background_image_url_https;
 	
 	@Column(name = "protected")
-	private boolean is_protected;
+	private Boolean is_protected;
 	
 	@Column(name = "screen_name")
 	private String screen_name;
@@ -116,7 +117,7 @@ public class User {
 	private String id_str;
 	
 	@Column(name = "geo_enabled")
-	private boolean geo_enabled;
+	private Boolean geo_enabled;
 	
 	@Column(name = "profile_background_color")
 	private String profile_background_color;
@@ -125,7 +126,7 @@ public class User {
 	private String lang;
 	
 	@Column(name = "has_extended_profile")
-	private boolean has_extended_profile;
+	private Boolean has_extended_profile;
 	
 	@Column(name = "profile_sidebar_border_color")
 	private String profile_sidebar_border_color;
@@ -134,7 +135,7 @@ public class User {
 	private String profile_text_color;
 	
 	@Column(name = "verified")
-	private boolean verified;
+	private Boolean verified;
 	
 	@Column(name = "profile_image_url")
 	private String profile_image_url;
@@ -146,7 +147,7 @@ public class User {
 	private String url;
 	
 	@Column(name = "contributors_enabled")
-	private boolean contributors_enabled;
+	private Boolean contributors_enabled;
 	
 	@Column(name = "profile_background_title")
 	private String profile_backgroung_title;
@@ -154,27 +155,23 @@ public class User {
 	@Column(name = "profile_banner_url")
 	private String profile_banner_url;
 	
-	@OneToOne
-	@JoinColumn(name = "entities")
-	private Entities user;
-	
 	@Column(name = "statuses_count")
-	private int statuses_count;
+	private Integer statuses_count;
 	
 	@Column(name = "follow_request_sent")
-	private boolean follow_request_sent;
+	private Boolean follow_request_sent;
 	
 	@Column(name = "followers_count")
-	private int followers_count;
+	private Integer followers_count;
 	
 	@Column(name = "profile_use_background_image")
-	private boolean profile_use_background_image;
+	private Boolean profile_use_background_image;
 	
 	@Column(name = "default_profile")
-	private boolean default_profile;
+	private Boolean default_profile;
 	
 	@Column(name = "following")
-	private boolean following;
+	private Boolean following;
 	
 	@Column(name = "name")
 	private String name;
@@ -186,29 +183,29 @@ public class User {
 	private String profile_sidebar_fill_color;
 	
 	@Column(name = "notifications")
-	private boolean notifications;
+	private Boolean notifications;
 
-	public int getId() {
+	public Integer getId() {
 		return id;
 	}
 
-	public void setId(int id) {
+	public void setId(Integer id) {
 		this.id = id;
 	}
 
-	public int getUtc_offset() {
+	public Integer getUtc_offset() {
 		return utc_offset;
 	}
 
-	public void setUtc_offset(int utc_offset) {
+	public void setUtc_offset(Integer utc_offset) {
 		this.utc_offset = utc_offset;
 	}
 
-	public int getFriends_count() {
+	public Integer getFriends_count() {
 		return friends_count;
 	}
 
-	public void setFriends_count(int friends_count) {
+	public void setFriends_count(Integer friends_count) {
 		this.friends_count = friends_count;
 	}
 
@@ -220,11 +217,11 @@ public class User {
 		this.profile_image_url_https = profile_image_url_https;
 	}
 
-	public int getListed_count() {
+	public Integer getListed_count() {
 		return listed_count;
 	}
 
-	public void setListed_count(int listed_count) {
+	public void setListed_count(Integer listed_count) {
 		this.listed_count = listed_count;
 	}
 
@@ -236,19 +233,19 @@ public class User {
 		this.profile_background_image_url = profile_background_image_url;
 	}
 
-	public boolean isDefault_profile_image() {
+	public Boolean isDefault_profile_image() {
 		return default_profile_image;
 	}
 
-	public void setDefault_profile_image(boolean default_profile_image) {
+	public void setDefault_profile_image(Boolean default_profile_image) {
 		this.default_profile_image = default_profile_image;
 	}
 
-	public int getFavourites_count() {
+	public Integer getFavourites_count() {
 		return favourites_count;
 	}
 
-	public void setFavourites_count(int favourites_count) {
+	public void setFavourites_count(Integer favourites_count) {
 		this.favourites_count = favourites_count;
 	}
 
@@ -268,11 +265,11 @@ public class User {
 		this.created_at = created_at;
 	}
 
-	public boolean isIs_translator() {
+	public Boolean isIs_translator() {
 		return is_translator;
 	}
 
-	public void setIs_translator(boolean is_translator) {
+	public void setIs_translator(Boolean is_translator) {
 		this.is_translator = is_translator;
 	}
 
@@ -284,11 +281,11 @@ public class User {
 		this.profile_background_image_url_https = profile_background_image_url_https;
 	}
 
-	public boolean isIs_protected() {
+	public Boolean isIs_protected() {
 		return is_protected;
 	}
 
-	public void setIs_protected(boolean is_protected) {
+	public void setProtected(Boolean is_protected) {
 		this.is_protected = is_protected;
 	}
 
@@ -308,11 +305,11 @@ public class User {
 		this.id_str = id_str;
 	}
 
-	public boolean isGeo_enabled() {
+	public Boolean isGeo_enabled() {
 		return geo_enabled;
 	}
 
-	public void setGeo_enabled(boolean geo_enabled) {
+	public void setGeo_enabled(Boolean geo_enabled) {
 		this.geo_enabled = geo_enabled;
 	}
 
@@ -332,11 +329,11 @@ public class User {
 		this.lang = lang;
 	}
 
-	public boolean isHas_extended_profile() {
+	public Boolean isHas_extended_profile() {
 		return has_extended_profile;
 	}
 
-	public void setHas_extended_profile(boolean has_extended_profile) {
+	public void setHas_extended_profile(Boolean has_extended_profile) {
 		this.has_extended_profile = has_extended_profile;
 	}
 
@@ -356,11 +353,11 @@ public class User {
 		this.profile_text_color = profile_text_color;
 	}
 
-	public boolean isVerified() {
+	public Boolean isVerified() {
 		return verified;
 	}
 
-	public void setVerified(boolean verified) {
+	public void setVerified(Boolean verified) {
 		this.verified = verified;
 	}
 
@@ -388,11 +385,11 @@ public class User {
 		this.url = url;
 	}
 
-	public boolean isContributors_enabled() {
+	public Boolean isContributors_enabled() {
 		return contributors_enabled;
 	}
 
-	public void setContributors_enabled(boolean contributors_enabled) {
+	public void setContributors_enabled(Boolean contributors_enabled) {
 		this.contributors_enabled = contributors_enabled;
 	}
 
@@ -412,59 +409,51 @@ public class User {
 		this.profile_banner_url = profile_banner_url;
 	}
 
-	public Entities getUser() {
-		return user;
-	}
-
-	public void setUser(Entities user) {
-		this.user = user;
-	}
-
-	public int getStatuses_count() {
+	public Integer getStatuses_count() {
 		return statuses_count;
 	}
 
-	public void setStatuses_count(int statuses_count) {
+	public void setStatuses_count(Integer statuses_count) {
 		this.statuses_count = statuses_count;
 	}
 
-	public boolean isFollow_request_sent() {
+	public Boolean isFollow_request_sent() {
 		return follow_request_sent;
 	}
 
-	public void setFollow_request_sent(boolean follow_request_sent) {
+	public void setFollow_request_sent(Boolean follow_request_sent) {
 		this.follow_request_sent = follow_request_sent;
 	}
 
-	public int getFollowers_count() {
+	public Integer getFollowers_count() {
 		return followers_count;
 	}
 
-	public void setFollowers_count(int followers_count) {
+	public void setFollowers_count(Integer followers_count) {
 		this.followers_count = followers_count;
 	}
 
-	public boolean isProfile_use_background_image() {
+	public Boolean isProfile_use_background_image() {
 		return profile_use_background_image;
 	}
 
-	public void setProfile_use_background_image(boolean profile_use_background_image) {
+	public void setProfile_use_background_image(Boolean profile_use_background_image) {
 		this.profile_use_background_image = profile_use_background_image;
 	}
 
-	public boolean isDefault_profile() {
+	public Boolean isDefault_profile() {
 		return default_profile;
 	}
 
-	public void setDefault_profile(boolean default_profile) {
+	public void setDefault_profile(Boolean default_profile) {
 		this.default_profile = default_profile;
 	}
 
-	public boolean isFollowing() {
+	public Boolean isFollowing() {
 		return following;
 	}
 
-	public void setFollowing(boolean following) {
+	public void setFollowing(Boolean following) {
 		this.following = following;
 	}
 
@@ -492,11 +481,11 @@ public class User {
 		this.profile_sidebar_fill_color = profile_sidebar_fill_color;
 	}
 
-	public boolean isNotifications() {
+	public Boolean isNotifications() {
 		return notifications;
 	}
 
-	public void setNotifications(boolean notifications) {
+	public void setNotifications(Boolean notifications) {
 		this.notifications = notifications;
 	}
 

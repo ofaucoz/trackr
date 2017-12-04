@@ -20,9 +20,9 @@ public class Tweet {
 	
 	
 	public Tweet(String in_reply_to_status_id_str, String in_reply_to_status_id, Date created_at, String source,
-			int retweet_count, String retweeted, String geo, String in_reply_to_screen_name, String is_quote_status,
-			int favorite_count, int tweet_id, String tweet_text, String place, String lang, boolean favorited,
-			boolean possibly_sensitive, String coordinates, boolean truncated, String contributors, User user) {
+			Integer retweet_count, String retweeted, String geo, String in_reply_to_screen_name, String is_quote_status,
+			Integer favorite_count, Integer tweet_id, String tweet_text, String place, String lang, Boolean favorited,
+			Boolean possibly_sensitive, String coordinates, Boolean truncated, String contributors, User user, Entities entities) {
 		super();
 		this.in_reply_to_status_id_str = in_reply_to_status_id_str;
 		this.in_reply_to_status_id = in_reply_to_status_id;
@@ -35,7 +35,7 @@ public class Tweet {
 		this.is_quote_status = is_quote_status;
 		this.favorite_count = favorite_count;
 		this.tweet_id = tweet_id;
-		this.tweet_text = tweet_text;
+		this.text = tweet_text;
 		this.place = place;
 		this.lang = lang;
 		this.favorited = favorited;
@@ -44,7 +44,10 @@ public class Tweet {
 		this.truncated = truncated;
 		this.contributors = contributors;
 		this.user = user;
+		this.entities = entities;
 	}
+	
+	public Tweet() {}
 
 	@Column(name = "in_reply_to_status_id_str")
 	private String in_reply_to_status_id_str;
@@ -60,7 +63,7 @@ public class Tweet {
 	private String source;
 
 	@Column(name = "retweet_count")
-	private int retweet_count;
+	private Integer retweet_count;
 
 	@Column(name = "retweeted")
 	private String retweeted;
@@ -75,13 +78,13 @@ public class Tweet {
 	private String is_quote_status;
 
 	@Column(name = "favorite_count")
-	private int favorite_count;
+	private Integer favorite_count;
 
 	@Column(name = "tweet_id")
-	private int tweet_id;
+	private Integer tweet_id;
 
 	@Column(name = "tweet_text")
-	private String tweet_text;
+	private String text;
 
 	@Column(name = "place")
 	private String place;
@@ -90,28 +93,32 @@ public class Tweet {
 	private String lang;
 
 	@Column(name = "favorited")
-	private boolean favorited;
+	private Boolean favorited;
 
 	@Column(name = "possibly_sensitive")
-	private boolean possibly_sensitive;
+	private Boolean possibly_sensitive;
 
 	@Column(name = "coordinates")
 	private String coordinates;
 
 	@Column(name = "truncated")
-	private boolean truncated;
+	private Boolean truncated;
 
 	@Column(name = "contributors")
 	private String contributors;
 
 	@OneToOne
 	@JoinColumn(name = "user")
-	private User user;
+	private User user;	
+
+	@OneToOne
+	@JoinColumn(name = "entities")
+	private Entities entities;
 
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	@Column(name = "id", unique = true, nullable = false)
-	private int id;
+	private Integer id;
 
 	public String getIn_reply_to_status_id_str() {
 		return in_reply_to_status_id_str;
@@ -145,11 +152,11 @@ public class Tweet {
 		this.source = source;
 	}
 
-	public int getRetweet_count() {
+	public Integer getRetweet_count() {
 		return retweet_count;
 	}
 
-	public void setRetweet_count(int retweet_count) {
+	public void setRetweet_count(Integer retweet_count) {
 		this.retweet_count = retweet_count;
 	}
 
@@ -185,28 +192,28 @@ public class Tweet {
 		this.is_quote_status = is_quote_status;
 	}
 
-	public int getFavorite_count() {
+	public Integer getFavorite_count() {
 		return favorite_count;
 	}
 
-	public void setFavorite_count(int favorite_count) {
+	public void setFavorite_count(Integer favorite_count) {
 		this.favorite_count = favorite_count;
 	}
 
-	public int getTweet_id() {
+	public Integer getTweet_id() {
 		return tweet_id;
 	}
 
-	public void setTweet_id(int tweet_id) {
+	public void setTweet_id(Integer tweet_id) {
 		this.tweet_id = tweet_id;
 	}
 
-	public String getTweet_text() {
-		return tweet_text;
+	public String getText() {
+		return text;
 	}
 
-	public void setTweet_text(String tweet_text) {
-		this.tweet_text = tweet_text;
+	public void setText(String tweet_text) {
+		this.text = tweet_text;
 	}
 
 	public String getPlace() {
@@ -225,19 +232,19 @@ public class Tweet {
 		this.lang = lang;
 	}
 
-	public boolean isFavorited() {
+	public Boolean isFavorited() {
 		return favorited;
 	}
 
-	public void setFavorited(boolean favorited) {
+	public void setFavorited(Boolean favorited) {
 		this.favorited = favorited;
 	}
 
-	public boolean isPossibly_sensitive() {
+	public Boolean isPossibly_sensitive() {
 		return possibly_sensitive;
 	}
 
-	public void setPossibly_sensitive(boolean possibly_sensitive) {
+	public void setPossibly_sensitive(Boolean possibly_sensitive) {
 		this.possibly_sensitive = possibly_sensitive;
 	}
 
@@ -249,11 +256,11 @@ public class Tweet {
 		this.coordinates = coordinates;
 	}
 
-	public boolean isTruncated() {
+	public Boolean isTruncated() {
 		return truncated;
 	}
 
-	public void setTruncated(boolean truncated) {
+	public void setTruncated(Boolean truncated) {
 		this.truncated = truncated;
 	}
 
@@ -273,12 +280,20 @@ public class Tweet {
 		this.user = user;
 	}
 
-	public int getId() {
+	public Integer getId() {
 		return id;
 	}
 
-	public void setId(int id) {
+	public void setId(Integer id) {
 		this.id = id;
+	}
+	
+	public Entities getEntities() {
+		return entities;
+	}
+
+	public void setEntities(Entities entities) {
+		this.entities = entities;
 	}
 	
 
@@ -287,10 +302,10 @@ public class Tweet {
 		
 		Entities e = new Entities("test", "test", "test", "test");
 		User u = new User(0, 2, "test",2,"test",true,2,"test",new Date(2013,12,1,1,1), true, "test", true, "test", "test", true,
-				"test", "test", true,"test", "test", true, "test","test", "test", true, "test","test", e, 2, true,2, true, true, true,
+				"test", "test", true,"test", "test", true, "test","test", "test", true, "test","test", 2, true,2, true, true, true,
 				"test", "test", "test", true);
 		Tweet t = new Tweet("test", "test", new Date(2013,12,1,1,1), "test",2, "test", "test", "test","test",4, 2, "test", "test", "test", true,
-				true, "test", true, "test", u);
+				true, "test", true, "test", u, e);
 		session.beginTransaction();
 		session.saveOrUpdate(e);
 		session.saveOrUpdate(u);
@@ -299,5 +314,6 @@ public class Tweet {
 		System.out.println(t.getFavorite_count());
 		session.close();
 }
+
 
 }
