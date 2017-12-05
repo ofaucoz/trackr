@@ -298,8 +298,7 @@ public class Tweet {
 	
 
 	public static void main(String[] args) {
-		Session session = SFactory.getSession();
-		
+		Session session = SFactory.getSession();		
 		Entities e = new Entities("test", "test", "test", "test");
 		User u = new User(0, 2, "test",2,"test",true,2,"test",new Date(2013,12,1,1,1), true, "test", true, "test", "test", true,
 				"test", "test", true,"test", "test", true, "test","test", "test", true, "test","test", 2, true,2, true, true, true,

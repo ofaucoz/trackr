@@ -1,6 +1,7 @@
 package ressources;
 
 import java.io.BufferedReader;
+import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -44,12 +45,12 @@ public class TwitterBuilder {
 	public TwitterBuilder() throws IOException {
 		super();
 		Properties prop = new Properties();
-		InputStream input = null;
-		input = new FileInputStream("config.properties");
+		InputStream is = getClass().getResourceAsStream("/ressources/config.properties");
 
 		// load a properties file
-		prop.load(input);
-
+		System.out.println("ok");
+		prop.load(is);
+		System.out.println("ok");
 		// get the property values
 		consumerKey = prop.getProperty("consumerKey");
 		consumerSecret = prop.getProperty("consumerSecret");
@@ -161,7 +162,8 @@ public class TwitterBuilder {
 
 	}
 
-	public void createTable(List<Map<String, Object>> values, Session session) {
+	public List<Tweet> createTable(List<Map<String, Object>> values, Session session) {
+		List<Tweet> listTweet = new ArrayList<Tweet>();
 		for (int i = 0; i < values.size(); i++) {
 			Entities e = new Entities();
 			User u = new User();
@@ -211,7 +213,7 @@ public class TwitterBuilder {
 					System.out.println(exc);
 				}
 			}
-			//System.out.println("user for example : " + u.getDescription());
+			// System.out.println("user for example : " + u.getDescription());
 			t.setUser(u);
 			t.setEntities(e);
 			session.getTransaction().begin();
@@ -219,9 +221,28 @@ public class TwitterBuilder {
 			session.save(e);
 			session.save(t);
 			session.getTransaction().commit();
-			//System.out.println("end : tweet: " + t.getText());
+			listTweet.add(t);
 		}
+		return listTweet;
 
+	}
+
+	public List<Tweet> queryAndCreate(String url, Session session) {
+		ArrayList<String> path = new ArrayList<String>();
+		List<Map<String, Object>> values = new ArrayList<Map<String, Object>>();
+		try {
+			JSONObject result = this.request(url);
+			JSONArray statuses = result.getJSONArray("statuses");
+			for (int i = 0; i < statuses.length(); i++) {
+				JSONObject current_obj = statuses.getJSONObject(i);
+				this.recurs_parsingJSON(current_obj, null, Integer.toString(i), path);
+			}
+			values = this.getValues(statuses, path);
+		} catch (Exception e) {
+			// TODO
+			System.out.println(e);
+		}
+		return this.createTable(values, session);
 	}
 
 	public static void main(String[] args) {
