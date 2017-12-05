@@ -22,3 +22,7 @@
 hs_err_pid*
 # configuration properties
 config.properties
+# eclipse conf files
+.classpath
+.project
+.settings/

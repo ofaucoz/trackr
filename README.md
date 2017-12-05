@@ -7,154 +7,40 @@
 ### Useful links
 * [Java twitter api Oauth](https://stackoverflow.com/questions/13387025/simplest-java-example-retrieving-user-timeline-with-twitter-api-version-1-1)
 
-### Example of tweets response
+### Setup
 
-```json
-{
-      "text": "RT @PostGradProblem: In preparation for the NFL lockout, I will be spending twice as much time analyzing my fantasy baseball team during ...", 
-      "truncated": true, 
-      "in_reply_to_user_id": null, 
-      "in_reply_to_status_id": null, 
-      "favorited": false, 
-      "source": "<a href=\"http://twitter.com/\" rel=\"nofollow\">Twitter for iPhone</a>", 
-      "in_reply_to_screen_name": null, 
-      "in_reply_to_status_id_str": null, 
-      "id_str": "54691802283900928", 
-      "entities": {
-            "user_mentions": [
-                  {
-                        "indices": [
-                              3, 
-                              19
-                        ], 
-                        "screen_name": "PostGradProblem", 
-                        "id_str": "271572434", 
-                        "name": "PostGradProblems", 
-                        "id": 271572434
-                  }
-            ], 
-            "urls": [ ], 
-            "hashtags": [ ]
-      }, 
-      "contributors": null, 
-      "retweeted": false, 
-      "in_reply_to_user_id_str": null, 
-      "place": null, 
-      "retweet_count": 4, 
-      "created_at": "Sun Apr 03 23:48:36 +0000 2011", 
-      "retweeted_status": {
-            "text": "In preparation for the NFL lockout, I will be spending twice as much time analyzing my fantasy baseball team during company time. #PGP", 
-            "truncated": false, 
-            "in_reply_to_user_id": null, 
-            "in_reply_to_status_id": null, 
-            "favorited": false, 
-            "source": "<a href=\"http://www.hootsuite.com\" rel=\"nofollow\">HootSuite</a>", 
-            "in_reply_to_screen_name": null, 
-            "in_reply_to_status_id_str": null, 
-            "id_str": "54640519019642881", 
-            "entities": {
-                  "user_mentions": [ ], 
-                  "urls": [ ], 
-                  "hashtags": [
-                        {
-                              "text": "PGP", 
-                              "indices": [
-                                    130, 
-                                    134
-                              ]
-                        }
-                  ]
-            }, 
-            "contributors": null, 
-            "retweeted": false, 
-            "in_reply_to_user_id_str": null, 
-            "place": null, 
-            "retweet_count": 4, 
-            "created_at": "Sun Apr 03 20:24:49 +0000 2011", 
-            "user": {
-                  "notifications": null, 
-                  "profile_use_background_image": true, 
-                  "statuses_count": 31, 
-                  "profile_background_color": "C0DEED", 
-                  "followers_count": 3066, 
-                  "profile_image_url": "http://a2.twimg.com/profile_images/1285770264/PGP_normal.jpg", 
-                  "listed_count": 6, 
-                  "profile_background_image_url": "http://a3.twimg.com/a/1301071706/images/themes/theme1/bg.png", 
-                  "description": "", 
-                  "screen_name": "PostGradProblem", 
-                  "default_profile": true, 
-                  "verified": false, 
-                  "time_zone": null, 
-                  "profile_text_color": "333333", 
-                  "is_translator": false, 
-                  "profile_sidebar_fill_color": "DDEEF6", 
-                  "location": "", 
-                  "id_str": "271572434", 
-                  "default_profile_image": false, 
-                  "profile_background_tile": false, 
-                  "lang": "en", 
-                  "friends_count": 21, 
-                  "protected": false, 
-                  "favourites_count": 0, 
-                  "created_at": "Thu Mar 24 19:45:44 +0000 2011", 
-                  "profile_link_color": "0084B4", 
-                  "name": "PostGradProblems", 
-                  "show_all_inline_media": false, 
-                  "follow_request_sent": null, 
-                  "geo_enabled": false, 
-                  "profile_sidebar_border_color": "C0DEED", 
-                  "url": null, 
-                  "id": 271572434, 
-                  "contributors_enabled": false, 
-                  "following": null, 
-                  "utc_offset": null
-            }, 
-            "id": 54640519019642880, 
-            "coordinates": null, 
-            "geo": null
-      }, 
-      "user": {
-            "notifications": null, 
-            "profile_use_background_image": true, 
-            "statuses_count": 351, 
-            "profile_background_color": "C0DEED", 
-            "followers_count": 48, 
-            "profile_image_url": "http://a1.twimg.com/profile_images/455128973/gCsVUnofNqqyd6tdOGevROvko1_500_normal.jpg", 
-            "listed_count": 0, 
-            "profile_background_image_url": "http://a3.twimg.com/a/1300479984/images/themes/theme1/bg.png", 
-            "description": "watcha doin in my waters?", 
-            "screen_name": "OldGREG85", 
-            "default_profile": true, 
-            "verified": false, 
-            "time_zone": "Hawaii", 
-            "profile_text_color": "333333", 
-            "is_translator": false, 
-            "profile_sidebar_fill_color": "DDEEF6", 
-            "location": "Texas", 
-            "id_str": "80177619", 
-            "default_profile_image": false, 
-            "profile_background_tile": false, 
-            "lang": "en", 
-            "friends_count": 81, 
-            "protected": false, 
-            "favourites_count": 0, 
-            "created_at": "Tue Oct 06 01:13:17 +0000 2009", 
-            "profile_link_color": "0084B4", 
-            "name": "GG", 
-            "show_all_inline_media": false, 
-            "follow_request_sent": null, 
-            "geo_enabled": false, 
-            "profile_sidebar_border_color": "C0DEED", 
-            "url": null, 
-            "id": 80177619, 
-            "contributors_enabled": false, 
-            "following": null, 
-            "utc_offset": -36000
-      }, 
-      "id": 54691802283900930, 
-      "coordinates": null, 
-      "geo": null
-}
-```
+I'll use the installation process like it's Linux, I've no clue how to do it on Windows
+
+* Install Eclipse JEE (for example Oxygen), follow instructions (especially the choice of the workspace) => take care of getting a proper jdk before
+* Clone the project into the eclipse workspace
+* Setup the build path : add every .jar from /trackr/lib in the Build Path (right click on project =>  Build Path => Configure Build Path => Libraries => Add external jar) 
+At this point you should have no errors in the ressources packages
+* Say to eclipse that the project is a Dynamic Web Project => right click on project => Project Facets => tick Dynamic Web Module
+* Setup the server :
+  * Go to Help => Eclipse Marketplace => type Jboss and search => install Jboss Tools 4.5.1 Final
+  * extract wildfly...tar.gz (tar -xvf wildfly...tar.gz) somewhere
+  * Go to Windows => Preferences => Server => Runtime Environment => Add => Chose wildfly 10 => point Home Directory where you extracted wildfly...tar.gz
+* Setup the database :
+  * Install mysql 
+  * Setup mysql : for using the database I used root user with password="password", do the same, it's specified in the files
+  * Type : 
+```bash
+$ mysql -u root -p 
+ ```
+  * Put the password ("password")
+  * In the mysql prompt, type "CREATE DATABASE trackr;"
+  * Then type : (that step set the model into the database)
+  ``` bash
+  mysql -u root -p trackr < /trackr/tweetdb.sql 
+  ```
+* Get the configuration.properties file
+* Put it on /src/ressources/config.properties
+At this point you should have no error at all.
+* Use the web service :
+  * Go to the HashtagServlet
+  * Run As => Run on server (you may have to create one, using the runtime from wildfly)
+  * Now if you get http://localhost:8080/trackr/hashtag/?hashtag=tugraz you are able to get a list of Tweet objects with a lot of informations inside
+
+
 
 
