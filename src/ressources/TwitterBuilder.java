@@ -48,9 +48,7 @@ public class TwitterBuilder {
 		InputStream is = getClass().getResourceAsStream("/ressources/config.properties");
 
 		// load a properties file
-		System.out.println("ok");
 		prop.load(is);
-		System.out.println("ok");
 		// get the property values
 		consumerKey = prop.getProperty("consumerKey");
 		consumerSecret = prop.getProperty("consumerSecret");
@@ -172,15 +170,12 @@ public class TwitterBuilder {
 			Map<String, Object> json_values = values.get(i);
 			DateFormat format = new SimpleDateFormat("EEE MMM d hh:mm:ss ZZZZZ YYYY", Locale.ENGLISH);
 			for (Map.Entry<String, Object> entry : json_values.entrySet()) {
-				System.out.println("key : " + entry.getKey() + ", value : " + entry.getValue());
-				// Method method = e.getClass()
 				Method method;
 				String[] list_entry = entry.getKey().split("\\.");
 				// Determine from which type is the value
 				if (entry.getValue() instanceof Boolean) {
 					value = (Boolean) entry.getValue();
 				} else if (entry.getValue() instanceof Integer) {
-					System.out.println("integer");
 					value = (int) entry.getValue();
 				} else if (entry.getValue() instanceof String)
 					try {
@@ -210,7 +205,6 @@ public class TwitterBuilder {
 						break;
 					}
 				} catch (Exception exc) {
-					System.out.println(exc);
 				}
 			}
 			// System.out.println("user for example : " + u.getDescription());

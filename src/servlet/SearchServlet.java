@@ -27,11 +27,11 @@ import ressources.User;
 /**
  * Servlet implementation class Auth
  */
-@WebServlet("/hashtag")
-public class HashtagServlet extends HttpServlet implements Servlet {
+@WebServlet("search")
+public class SearchServlet extends HttpServlet implements Servlet {
 	private static final long serialVersionUID = 2L;
 
-	public HashtagServlet() {
+	public SearchServlet() {
 		super();
 	}
 
@@ -42,11 +42,23 @@ public class HashtagServlet extends HttpServlet implements Servlet {
 
 	protected void doGet(HttpServletRequest request, HttpServletResponse response)
 			throws ServletException, IOException {
+		System.out.println(request.toString());
 		PrintWriter out = response.getWriter();
 		Session session = SFactory.getSession();
 		List<Tweet> listTweet = new ArrayList<Tweet>();
-		String hashtag = escapeHtml4(request.getParameter("hashtag"));
-		String url = "https://api.twitter.com/1.1/search/tweets.json?q=" + hashtag;
+		String hashtag = request.getParameter("hashtag");
+		String latitude = request.getParameter("latitude");
+		String longitude = request.getParameter("longitude");
+		String radius = request.getParameter("radius");
+		String url = "https://api.twitter.com/1.1/search/tweets.json?";
+		if(hashtag != null) {
+			System.out.println("hashtag");
+			url += "q=" + hashtag;
+		}
+		if(latitude!=null&&longitude!=null&&radius!=null) {
+			System.out.println("geocode");
+			url += "geocode=" + latitude + "," + longitude + "," + radius;
+		}
 		TwitterBuilder twitterBuilder = new TwitterBuilder();
 		ObjectMapper objectMapper = new ObjectMapper();
 		listTweet = twitterBuilder.queryAndCreate(url, session);
