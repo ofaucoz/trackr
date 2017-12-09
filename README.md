@@ -2,7 +2,8 @@
 
 ## Description
 
-//TODO
+Project for the Web Technology course in TUGraz.
+The project's goal is to get some tweets from a specific location or a specific hashtag, or both, and show them inside a world map. 
 
 ### Useful links
 * [Java twitter api Oauth](https://stackoverflow.com/questions/13387025/simplest-java-example-retrieving-user-timeline-with-twitter-api-version-1-1)
@@ -41,6 +42,17 @@ At this point you should have no error at all.
   * Run As => Run on server (you may have to create one, using the runtime from wildfly)
   * Now if you get http://localhost:8080/trackr/hashtag/?hashtag=tugraz you are able to get a list of Tweet objects with a lot of informations inside
 
+### Usage
 
+Http get request to http://localhost:8080/trackr/search (or whatever host you have).
+
+Parameters :
+* hashtag
+* longitude 
+* latitude 
+* radius
+
+Example : http://localhost:8080/trackr/search?latitude=47.076668&longitude=15.421371&radius=1mi&hashtag=tugraz
+Will get the tweets around tugraz coordinates with a 1mile radius and tugraz as hashtag.
 
 
