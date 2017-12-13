@@ -14,6 +14,7 @@ var bounds;
 var infoWindow;
 var searchLatitude;
 var searchLongitude;
+var userLocationSet;
 
 // Map Themes
 // ==========
@@ -53,6 +54,7 @@ function makeMap() {
 	highlightedIcon = makeMarkerIcon('FFFF24');
 	infoWindow = new google.maps.InfoWindow();
 	bounds = new google.maps.LatLngBounds();
+	userLocationSet = false;
 	
 	//link up to database to get twitter data goes here!!!! and replaces var data
 	var data = [
@@ -96,6 +98,34 @@ function update() {
 
 function updateMapStyle() {
 	map.setOptions( { styles: styles[document.getElementById("map_style").value] } );
+}
+
+//TODO: this should also clear all user input in form fields
+function resetMap(){
+	
+	$('#reset').popover('show');
+	
+	document.getElementById('reset_confirm').addEventListener('click', function() {
+		$('#reset').popover('hide');
+		map.setCenter(defaultLocation);
+		map.setZoom(10);
+		for (var i = 0; i < markers.length; i++) {
+			markers[i].setMap(null); 	//removes marker from map
+		}
+		markers = [];
+		circles = [];
+		update();						//redraw canvas
+	});
+	
+	document.getElementById('reset_cancel').addEventListener('click', function() {
+		$('#reset').popover('hide');
+	});
+	
+	//TODO: we need to clear all user input in form fields but it's probably best to use HTML5 form reset button
+	//document.getElementById('hashtag').value = '';
+	//document.getElementById('search_address').value = '';
+	//document.getElementById('search_radius').value = ??;
+	//document.getElementById('until_date').value = '';
 }
 
 
@@ -212,8 +242,6 @@ function showErrorPopup(errorMsg){
 // User Search
 // ===========
 
-//TODO: this should just add user current location into search query box
-//then maybe a marker hidden until after search
 function searchUserCurrentLocation() {
 	
 	if(navigator.geolocation) {
@@ -224,16 +252,15 @@ function searchUserCurrentLocation() {
 	}
 	
 	function search(position) {
+		searchLatitude = position.coords.latitude;
+		searchLongitude = position.coords.longitude;
 		var pos = {
               lat: position.coords.latitude,
               lng: position.coords.longitude
         };
-		defaultLocation = new google.maps.LatLng(pos);
-		addMarkerToMap(pos, "Current Location");
-		map.setCenter(pos);
-		var circleRadius = document.getElementById('search_radius').value;		//defaults to first option (0.01) if none selected
-		circles.push({center: defaultLocation, radius: circleRadius});
-		update();	//redraw map overlay
+		defaultLocation = new google.maps.LatLng(pos);   //update defaultLocation to be user's location
+		userLocationSet = true; 						 //this means we will add a marker in processJSONResponse
+		document.getElementById('search_address').value = searchLatitude.toString() + ', ' + searchLongitude.toString();
 	}
 	
 	function handleGeolocationError() {
@@ -243,63 +270,9 @@ function searchUserCurrentLocation() {
 	return false; //stops link reloading page?
 }
 
-function getCoordinatesOfAddress(address){
-	geocoder.geocode({'address': userInput}, function(results, status) {
-		if (status === 'OK') {
-			if (results[0]) {
-				return results[0].geometry.location;
-			}
-		}
-		else {	// no results, server error, request timed out, etc
-			console.log('Coordinate search failed due to the following error: ' + status);
-			return null; //error
-		}
-	});	
-}
-
-/*
-map.setCenter(results[0].geometry.location);
-				addMarkerToMap(results[0].geometry.location, results[0].formatted_address); 
-				var circleRadius = document.getElementById('search_radius').value;		//defaults to first option (0.01) if none selected
-				circles.push({center: results[0].geometry.location, radius: circleRadius});
-				update();	//redraw map overlay
-				
-*/
-
-/*
-function searchUserInputLocation() {
-	var userInput = document.getElementById('search_address').value;
-	if(!userInput) {
-		$('#search').popover('show');
-	}
-	else {
-		$('#search').popover('hide');
-		geocoder.geocode({'address': userInput}, function(results, status) {
-			if (status === 'OK') {
-				if (results[0]) {
-					map.setCenter(results[0].geometry.location);
-					addMarkerToMap(results[0].geometry.location, results[0].formatted_address); 
-					var circleRadius = document.getElementById('search_radius').value;		//defaults to first option (0.01) if none selected
-					circles.push({center: results[0].geometry.location, radius: circleRadius});
-					update();	//redraw map overlay
-				}
-			}
-			else if (status == 'ZERO_RESULTS') {	
-				alert('The address could not be found.');
-			}
-			else if (status == 'OVER_QUERY_LIMIT') {
-				alert('Oops! We\'re over our Google Maps query limit, please try again later.');
-			}
-			else {	// server error, request timed out, etc
-				alert ('Search failed due to the following error: ' + status + '. Please check your internet connection.');
-			}
-		});	
-	}	
-}
-*/
 
 function search() {
-	if(!document.getElementById('hashtag').value && (latitude === null) && (longitude===null)) {
+	if(!document.getElementById('hashtag').value && (searchLatitude === null) && (searchLongitude===null)) {
 		showErrorPopup("Please enter some search criteria.");
 	}
 	else {	//construct server API query
@@ -307,19 +280,20 @@ function search() {
 		$('#search').popover('hide');
 		var query = [];
 		var error = false;
-		if(searchLatitude !== null && searchLongitude !== null) {
-			// ugh geocoding is async so need to do it as soon as they enter an address, would prefer to do it server-side tbh
-			query.push('latitude= ' + searchLatitude + '&'); 
-			query.push('longitude= ' + searchLongitude + '&'); 
-			var radius = document.getElementById('search_radius').value ? document.getElementById('search_radius').value : 10;
-			query.push('radius= ' + radius + 'km&');
-		}
-		if(document.getElementById('hashtag').value) {
-			query.push('hashtag=' + sanitizeUserInput(document.getElementById('hashtag').value));
+		if(searchLatitude !== undefined && searchLongitude !== undefined) {
+			query.push('latitude=' + searchLatitude + '&'); 
+			query.push('longitude=' + searchLongitude + '&'); 
+			var radiusForm = document.getElementById('search_radius');
+			var radius = radiusForm.options[radiusForm.selectedIndex].text;  //get currently selected label
+			radius = radius.replace(/ /g,''); //remove space
+			query.push('radius=' + radius + '&');
 		}
 		//if(document.getElementById('until_date').value) {
 			//TODO: not implemented on server side yet
 		//}
+		if(document.getElementById('hashtag').value) {
+			query.push('hashtag=' + sanitizeUserInput(document.getElementById('hashtag').value));
+		}
 		if(!error){
 			query = query.join('');
 			if(query.charAt(query.length - 1) == '&'){  //remove trailing &s
@@ -328,6 +302,7 @@ function search() {
 			if(window.XMLHttpRequest){
 				var request = new XMLHttpRequest();
 				request.onreadystatechange = processJSONResponse;
+				console.log(query);
 				request.open('GET', 'http://localhost:8080/trackr/search?' + query, true);
 				request.send(null);
 			}
@@ -337,29 +312,8 @@ function search() {
 		}
 	}
 }
-	
-function resetMap(){
-	
-	$('#reset').popover('show');
-	
-	document.getElementById('reset_confirm').addEventListener('click', function() {
-		$('#reset').popover('hide');
-		map.setCenter(defaultLocation);
-		map.setZoom(10);
-		for (var i = 0; i < markers.length; i++) {
-			markers[i].setMap(null); 	//removes marker from map
-		}
-		markers = [];
-		circles = [];
-		update();						//redraw canvas
-	});
-	
-	document.getElementById('reset_cancel').addEventListener('click', function() {
-		$('#reset').popover('hide');
-	});
-	
-}
 
+//TODO: sanitizeUserInput for autocomplete too? or does Google's code handle that
 function sanitizeUserInput(input) {
 	//convert all whitespace chars to single space and remove special characters
 	//important for security as we use their input in the URL
@@ -374,12 +328,16 @@ function sanitizeUserInput(input) {
 
 function processJSONResponse(){
 	if (this.readyState == 4 && this.status == 200) {	//response OK
-		//updateHistory('null', query);
+		updateHistory('null', query);
 		document.getElementById('show-on-results').style.display = '';
 		tweets = JSON.parse(this.responseText.statuses);
 		for(tweet in tweets){
 			processJSONTweet(tweet);
-		}	
+		}
+		if(userLocationSet) {
+			addMarkerToMap(defaultLocation, "Current Location");
+		}
+		update(); //redraw map overlay
     }
 	else {
 		console.log("Error retrieving tweets from server");
@@ -393,9 +351,9 @@ function processJSONTweet() {
 	if(jsonTweet.coordinates){	
 		var coords = jsonTweet.coordinates[0];
 		var pos = {
-			lat: coords[0];
-			lng: coords[1];
-		}
+			lat: coords[0],
+			lng: coords[1],
+		};
 		addMarkerToMap(new google.maps.LatLng(pos), jsonTweet.text);
 		document.getElementById('result_count').value += 1; //or use this.responseText.search_metadata.count
 	}
@@ -406,6 +364,7 @@ function processJSONTweet() {
 				if (results[0]) {
 					addMarkerToMap(results[0].geometry.location, jsonTweet.title);
 					document.getElementById('result_count').value += 1;
+					update(); //need to redraw map overlay here as in callback, we have probably missed main update
 				}
 			}
 			else{
@@ -435,37 +394,12 @@ function processJSONTweet() {
 
 
 /* BACKUP CODE
-do not delete, this code will be used again once the back-end is ready to respond to AJAX queries
 
-geocoder.geocode({'address': sanitizeUserInput(document.getElementById('search_address').value)}, function(results, status) {
-				if (status === 'OK') {
-					if (results[0]) {
-						//this is how the request needs to be formatted for twitter API:
-						//'/place/' + results[0].geometry.location.lat + ',' + results[0].geometry.location.lng + ',' + document.getElementById('search_radius') + 'km';
-						//TODO: MOVE THIS CODE INTO CALLBACK FUNCTION once server API requests working
-						map.setCenter(results[0].geometry.location);
-						addMarkerToMap(results[0].geometry.location, results[0].formatted_address); 
-						var circleRadius = document.getElementById('search_radius').value;
-						circles.push({center: results[0].geometry.location, radius: circleRadius});
-						update();	//redraw map overlay
-
-					}
-				}
-				else if (status == 'ZERO_RESULTS') {
-					showErrorPopup('The address could not be found.');
-					error = true;
-				}
-				else if (status == 'OVER_QUERY_LIMIT') {
-					showErrorPopup('Oops! We\'re over our Google Maps query limit, please try again later.');
-					error = true;
-				}
-				else {	// server error, request timed out, etc
-					showErrorPopup('Search failed due to the following error: ' + status + '. Please check your internet connection.');
-					error = true;
-				}
-			});	 
-			
-			
+map.setCenter(results[0].geometry.location);
+				addMarkerToMap(results[0].geometry.location, results[0].formatted_address); 
+				var circleRadius = document.getElementById('search_radius').value;		//defaults to first option (0.01) if none selected
+				circles.push({center: results[0].geometry.location, radius: circleRadius});
+				update();	//redraw map overlay
 */
 
 
