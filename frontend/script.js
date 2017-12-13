@@ -12,10 +12,12 @@ var defaultIcon;
 var highlightedIcon;
 var bounds;
 var infoWindow;
+var searchLatitude;
+var searchLongitude;
 
-/* map themes
-=============
-awesome default theme by Andrea! */
+// Map Themes
+// ==========
+
 
 //TODO: add more styles here
 //no need to add to HTML code for extra style, we auto add select options to the HTML with JS
@@ -23,7 +25,10 @@ var defaultTheme = [{featureType:"water",stylers:[{color:"#19a0d8"}]},{featureTy
 var assassinsTheme = [{"featureType":"all","elementType":"all","stylers":[{"visibility":"on"}]},{"featureType":"all","elementType":"labels","stylers":[{"visibility":"off"},{"saturation":"-100"}]},{"featureType":"all","elementType":"labels.text.fill","stylers":[{"saturation":36},{"color":"#000000"},{"lightness":40},{"visibility":"off"}]},{"featureType":"all","elementType":"labels.text.stroke","stylers":[{"visibility":"off"},{"color":"#000000"},{"lightness":16}]},{"featureType":"all","elementType":"labels.icon","stylers":[{"visibility":"off"}]},{"featureType":"administrative","elementType":"geometry.fill","stylers":[{"color":"#000000"},{"lightness":20}]},{"featureType":"administrative","elementType":"geometry.stroke","stylers":[{"color":"#000000"},{"lightness":17},{"weight":1.2}]},{"featureType":"landscape","elementType":"geometry","stylers":[{"color":"#000000"},{"lightness":20}]},{"featureType":"landscape","elementType":"geometry.fill","stylers":[{"color":"#4d6059"}]},{"featureType":"landscape","elementType":"geometry.stroke","stylers":[{"color":"#4d6059"}]},{"featureType":"landscape.natural","elementType":"geometry.fill","stylers":[{"color":"#4d6059"}]},{"featureType":"poi","elementType":"geometry","stylers":[{"lightness":21}]},{"featureType":"poi","elementType":"geometry.fill","stylers":[{"color":"#4d6059"}]},{"featureType":"poi","elementType":"geometry.stroke","stylers":[{"color":"#4d6059"}]},{"featureType":"road","elementType":"geometry","stylers":[{"visibility":"on"},{"color":"#7f8d89"}]},{"featureType":"road","elementType":"geometry.fill","stylers":[{"color":"#7f8d89"}]},{"featureType":"road.highway","elementType":"geometry.fill","stylers":[{"color":"#7f8d89"},{"lightness":17}]},{"featureType":"road.highway","elementType":"geometry.stroke","stylers":[{"color":"#7f8d89"},{"lightness":29},{"weight":0.2}]},{"featureType":"road.arterial","elementType":"geometry","stylers":[{"color":"#000000"},{"lightness":18}]},{"featureType":"road.arterial","elementType":"geometry.fill","stylers":[{"color":"#7f8d89"}]},{"featureType":"road.arterial","elementType":"geometry.stroke","stylers":[{"color":"#7f8d89"}]},{"featureType":"road.local","elementType":"geometry","stylers":[{"color":"#000000"},{"lightness":16}]},{"featureType":"road.local","elementType":"geometry.fill","stylers":[{"color":"#7f8d89"}]},{"featureType":"road.local","elementType":"geometry.stroke","stylers":[{"color":"#7f8d89"}]},{"featureType":"transit","elementType":"geometry","stylers":[{"color":"#000000"},{"lightness":19}]},{"featureType":"water","elementType":"all","stylers":[{"color":"#2b3638"},{"visibility":"on"}]},{"featureType":"water","elementType":"geometry","stylers":[{"color":"#2b3638"},{"lightness":17}]},{"featureType":"water","elementType":"geometry.fill","stylers":[{"color":"#24282b"}]},{"featureType":"water","elementType":"geometry.stroke","stylers":[{"color":"#24282b"}]},{"featureType":"water","elementType":"labels","stylers":[{"visibility":"off"}]},{"featureType":"water","elementType":"labels.text","stylers":[{"visibility":"off"}]},{"featureType":"water","elementType":"labels.text.fill","stylers":[{"visibility":"off"}]},{"featureType":"water","elementType":"labels.text.stroke","stylers":[{"visibility":"off"}]},{"featureType":"water","elementType":"labels.icon","stylers":[{"visibility":"off"}]}];
 var styles = {"Trackr Classic" : defaultTheme, "Assassins Creed" : assassinsTheme};
 
-// ==================================
+
+// Map Drawing
+// ===========
+
 
 //initialises global map variables
 function makeMap() {
@@ -61,31 +66,6 @@ function makeMap() {
 	}	
 }
 
-function makeMarkerIcon(markerColor){
-        var markerImage = new google.maps.MarkerImage(
-          'http://chart.googleapis.com/chart?chst=d_map_spin&chld=1.15|0|'+ markerColor +
-          '|40|_|%E2%80%A2',
-          new google.maps.Size(21, 34),
-          new google.maps.Point(0, 0),
-          new google.maps.Point(10, 34),
-          new google.maps.Size(21,34));
-        return markerImage;
-}
-
-//only one info window allowed at a time
-function populateInfoWindow(marker, infowindow) {
-    // Check to make sure the infowindow is not already open on this marker.
-    if (infowindow.marker != marker) {
-		infowindow.marker = marker;
-        infowindow.setContent('<div>' + marker.position + '</div>' + marker.title);
-        infowindow.open(map, marker);
-        // Make sure the marker property is cleared if the infowindow is closed.
-        infowindow.addListener('closeclick', function() {
-			infowindow.marker = null;
-		});
-    }
-}
-
 function resize() {
 	//TODO
 }
@@ -113,6 +93,119 @@ function update() {
 	}
 	
 }
+
+function updateMapStyle() {
+	map.setOptions( { styles: styles[document.getElementById("map_style").value] } );
+}
+
+
+// Map Markers
+// ===========
+
+
+function addMarkerToMap(location, markerTitle){
+	var marker = new google.maps.Marker ({
+		position: location,
+		map: map,
+		title: markerTitle,
+		animation: google.maps.Animation.DROP,
+		icon: defaultIcon
+	});
+	//Marker changes colour on mouseover
+	marker.addListener('mouseover', function() {
+		this.setIcon(highlightedIcon);
+    });
+    marker.addListener('mouseout', function() {
+		this.setIcon(defaultIcon);
+    });
+	//Open an infowindow when clicked which shows the tweet
+    marker.addListener('click', function() {
+		populateInfoWindow(this, infoWindow);
+    });
+	markers.push(marker);
+	bounds.extend(marker.position);
+	map.fitBounds(bounds);
+}
+
+
+function makeMarkerIcon(markerColor){
+        var markerImage = new google.maps.MarkerImage(
+          'http://chart.googleapis.com/chart?chst=d_map_spin&chld=1.15|0|'+ markerColor +
+          '|40|_|%E2%80%A2',
+          new google.maps.Size(21, 34),
+          new google.maps.Point(0, 0),
+          new google.maps.Point(10, 34),
+          new google.maps.Size(21,34));
+        return markerImage;
+}
+
+//only one info window allowed at a time
+function populateInfoWindow(marker, infowindow) {
+    // Check to make sure the infowindow is not already open on this marker.
+    if (infowindow.marker != marker) {
+		infowindow.marker = marker;
+        infowindow.setContent('<div>' + marker.position + '</div>' + marker.title);
+        infowindow.open(map, marker);
+        // Make sure the marker property is cleared if the infowindow is closed.
+        infowindow.addListener('closeclick', function() {
+			infowindow.marker = null;
+		});
+    }
+}
+
+
+// Updating Display - Non-Map UI
+// =============================
+
+
+//TODO: if this causes problems here move it to bottom of script
+window.onload = function () {	
+	//hide tweet count and graphs before we have tweet results
+	document.getElementById('show-on-results').style.display = 'none';
+	//assign click event listeners
+	document.getElementById('find_me').addEventListener('click', function() {
+		searchUserCurrentLocation();
+	});
+	document.getElementById('search').addEventListener('click', function() {
+		search();
+	});
+	document.getElementById('reset').addEventListener('click', function() {
+		resetMap();
+	});
+	//add address autocomplete
+	var autocomplete = new google.maps.places.Autocomplete(document.getElementById('search_address'));
+	//fill map styles select element from styles array
+	document.getElementById("map_style").innerHTML = Object.keys(styles).map(function(styleName, styleJSON) {
+		return '<option value="'+styleName+'">'+styleName+'</option>'; })
+	.join('');
+	//set date limits based on current date - advisory for user only, still need to check form input
+	var currentDate = new Date(Date.now());
+	var minDate = new Date(new Date() - 86400000 * 7).toISOString().split('T')[0]; //7 days before current date
+	currentDate = currentDate.toISOString().split('T')[0];
+	document.getElementById("until_date").setAttribute("max", currentDate);	
+	document.getElementById("until_date").setAttribute("min", minDate);
+};
+document.addEventListener('DOMContentLoaded', makeMap, false);   //Do I actually need this?
+
+//remember these URLs don't exist so user can't refresh page or share URL - need to fix this somehow??
+function updateHistory(state, relativeURL){
+	if(!!(window.history && history.pushState)){	//check browser supports HTML5 History API
+		//history.pushState('{}', null, './fml'); //add new history entry and change to that URL without reloading page
+		//TODO: only uncomment this if running on a server e.g. on localhost rather than opening directly in browser
+	}
+}
+
+//TODO: fix links so not using # href: https://stackoverflow.com/questions/134845/which-href-value-should-i-use-for-javascript-links-or-javascriptvoid0?rq=1
+//TODO: add little popup to explain to user if they're on desktop that location is v approximate
+
+function showErrorPopup(errorMsg){
+	document.getElementById('search').setAttribute('data-content', errorMsg);
+	$('#search').popover('show');
+}
+
+
+// User Search
+// ===========
 
 function searchUserCurrentLocation() {
 	
@@ -143,6 +236,7 @@ function searchUserCurrentLocation() {
 	return false; //stops link reloading page?
 }
 
+/*
 function searchUserInputLocation() {
 	var userInput = document.getElementById('search_address').value;
 	if(!userInput) {
@@ -172,74 +266,48 @@ function searchUserInputLocation() {
 		});	
 	}	
 }
+*/
 
-//TODO: does this disappear on click?
-function showErrorPopup(errorMsg){
-	document.getElementById('search').setAttribute('data-content', errorMsg);
-	$('#search').popover('show');
-}
-
-/* function sanitizeUserInput(input){
-	return input.replace(/&/g, '&amp;')
-				.replace(/</g, '&lt;')
-				.replace(/>/g, '&gt;')
-				.replace(/"/g, '&quot;')
-				.replace(/'/g, '&apos;')
-				.replace(/$/g, '&dollar;')
-				.replace(/\\/g, '&#039;')
-				.replace(/\//g, '&#x2F;') */
-//				.replace(/\*/g, '&asp;')
-//				.replace(/#/g, '&num;');
-//}
-
-function sanitizeUserInput(input) {
-	//convert all whitespace chars to single space and remove special characters
-	//important for security as we use their input in the URL
-	input = input.replace(/[`~!@#$%^&*§()_|+\-=?;:'",.<>\{\}\[\]\\\/]/gi, '');
-	return input.replace(/\s\s*/g, '&nbsp;');	
-}
-
-//TODO: TEST
-//this should replace searchUserInputLocation etc
 function search() {
-	if(!document.getElementById('hashtag').value && !document.getElementById('search_address').value && !document.getElementById('until_date').value) {
-		showErrorPopup("Please enter a hashtag into the search box.");
+	if(!document.getElementById('hashtag').value && (latitude === null) && (longitude===null)) {
+		showErrorPopup("Please enter some search criteria.");
 	}
 	else {	//construct server API query
+		//example query http://localhost:8080/trackr/search?latitude=47.076668&longitude=15.421371&radius=1mi&hashtag=tugraz
 		$('#search').popover('hide');
 		var query = [];
 		var error = false;
+		if(latitude !== null && longitude !== null) {
+			// ugh geocoding is async so need to do it as soon as they enter an address, would prefer to do it server-side tbh
+			query.push('latitude= ' + searchLatitude + '&'); 
+			query.push('longitude= ' + searchLongitude + '&'); 
+			var radius = document.getElementById('search_radius').value ? document.getElementById('search_radius').value : 10;
+			query.push('radius= ' + radius + 'km&');
+		}
 		if(document.getElementById('hashtag').value) {
-			query.push('/hashtag/' + sanitizeUserInput(document.getElementById('hashtag').value));
+			query.push('hashtag=' + sanitizeUserInput(document.getElementById('hashtag').value));
 		}
-		if(document.getElementById('search_address').value) {
-			query.push('/place/' + sanitizeUserInput(document.getElementById('search_address').value));
-			// geocoding needs to be done server-side for consistency - different API. 
-		}
-		if(document.getElementById('until_date').value) {
-			//TODO: probs need to format timing data, look into Twitter API
-			//query.push('/from/' + document.getElementById('start_time').value);
-		}
+		//if(document.getElementById('until_date').value) {
+			//TODO: not implemented on server side yet
+		//}
 		if(!error){
 			query = query.join('');
-			updateHistory('null', query);
-			//send query to server and have callback for response
-			document.getElementById('show-on-results').style.display = '';    //TODO: move this to callback function, run once we have results
-			//if(window.XMLHttpRequest){
-				//var request = new XMLHttpRequest();
-				//request.onreadystatechange = processServerResponse;
-				//request.open("GET", 'server URL goes here' + query, true);
-				//request.send(null);
-			//}
+			if(query.charAt(query.length - 1) == '&'){  //remove trailing &s
+				query = query.substr(0, query.length - 2);
+			}
+			if(window.XMLHttpRequest){
+				var request = new XMLHttpRequest();
+				request.onreadystatechange = processJSONResponse;
+				request.open('GET', 'http://localhost:8080/trackr/search?' + query, true);
+				request.send(null);
+			}
 			//else{
 				//need alternative way of communicating with server, or just show error
 			//} 
 		}
 	}
 }
-
-
-
+	
 function resetMap(){
 	
 	$('#reset').popover('show');
@@ -262,40 +330,60 @@ function resetMap(){
 	
 }
 
-document.addEventListener('DOMContentLoaded', makeMap, false);   //Do I actually need this?
-
-window.onload = function () {	
-	//hide tweet count and graphs before we have tweet results
-	document.getElementById('show-on-results').style.display = 'none';
-	//assign click event listeners
-	document.getElementById('find_me').addEventListener('click', function() {
-		searchUserCurrentLocation();
-	});
-	document.getElementById('search').addEventListener('click', function() {
-		search();
-	});
-	document.getElementById('reset').addEventListener('click', function() {
-		resetMap();
-	});
-	//add address autocomplete
-	var autocomplete = new google.maps.places.Autocomplete(document.getElementById('search_address'));
-	//fill map styles select element from styles array
-	document.getElementById("map_style").innerHTML = Object.keys(styles).map(function(styleName, styleJSON) {
-		return '<option value="'+styleName+'">'+styleName+'</option>'; })
-	.join('');
-	//set date limits based on current date - advisory for user only, still need to check form input
-	var currentDate = new Date(Date.now());
-	var minDate = new Date(new Date() - 86400000 * 7).toISOString().split('T')[0]; //7 days before current date
-	currentDate = currentDate.toISOString().split('T')[0];
-	document.getElementById("until_date").setAttribute("max", currentDate);	
-	document.getElementById("until_date").setAttribute("min", minDate);
-};
-
-function updateMapStyle() {
-	map.setOptions( { styles: styles[document.getElementById("map_style").value] } );
+function sanitizeUserInput(input) {
+	//convert all whitespace chars to single space and remove special characters
+	//important for security as we use their input in the URL
+	input = input.replace(/[`~!@#$%^&*§()_|+\-=?;:'",.<>\{\}\[\]\\\/]/gi, '');
+	return input.replace(/\s\s*/g, '&nbsp;');	
 }
 
-//idea: draw Canvas circle with centre approx. location of Tweet (for super vague Tweet locations like 'Texas')
+
+//Server Communication
+//====================
+
+
+function processJSONResponse(){
+	if (this.readyState == 4 && this.status == 200) {	//response OK
+		//updateHistory('null', query);
+		document.getElementById('show-on-results').style.display = '';
+		tweets = JSON.parse(this.responseText.statuses);
+		for(tweet in tweets){
+			processJSONTweet(tweet);
+		}	
+    }
+	else {
+		console.log("Error retrieving tweets from server");
+		//TODO: cases for all possible errors/states?
+	}
+}
+
+function processJSONTweet() {
+	//TODO: turn this into a separate function processJSONTweet if it gets any longer
+	if(jsonTweet.coordinates){
+		addMarkerToMap(jsonTweet.coordinates, jsonTweet.TITLE);
+		//TODO: check if these need to be converted
+		document.getElementById('result_count').value += 1; //or use this.responseText.search_metadata.count
+	}
+	//if coordinates is null then use user.location (the location they set in their profile)
+	else if(jsonTweet.user.location){
+		geocoder.geocode({'address': tweet.user.location}, function(results, status) {
+			if (status === 'OK') {
+				if (results[0]) {
+					addMarkerToMap(results[0].geometry.location, results[0].formatted_address);
+					document.getElementById('result_count').value += 1;
+				}
+			}
+			else{
+				console.log("Error geocoding JSON user location");
+			}
+		});	
+	}
+	else {
+		console.log("Error: tweet contained no coords or user location");
+	}
+}
+
+
 /* TODO:
 	* Also option to switch between map / satellite mode etc
 	* see here for more info, also explains about map projections. https://developers.google.com/maps/documentation/javascript/maptypes?
@@ -306,79 +394,9 @@ function updateMapStyle() {
 	* check out https://fonts.google.com/
 	*/
 
-//var exampleJSONResponse = JSON.parse('{"text" : "lol"}');
-
 //TODO: cache queries maybe? to use another HTML5 featureType
 //TODO: semantic markup and ARIA framework
-//TODO: analysis of data + plotting graphs (maybe use d3.js as covered in the lecture?)
-
-
-function addMarkerToMap(location, markerTitle){
-	var marker = new google.maps.Marker ({
-		position: location,
-		map: map,
-		title: markerTitle,
-		animation: google.maps.Animation.DROP,
-		icon: defaultIcon
-	});
-	//Marker changes colour on mouseover
-	marker.addListener('mouseover', function() {
-		this.setIcon(highlightedIcon);
-    });
-    marker.addListener('mouseout', function() {
-		this.setIcon(defaultIcon);
-    });
-	//Open an infowindow when clicked which shows the tweet
-    marker.addListener('click', function() {
-		populateInfoWindow(this, infoWindow);
-    });
-	markers.push(marker);
-	bounds.extend(marker.position);
-	map.fitBounds(bounds);
-}
-
-//TODO: update tweet count from server response - id is result_count.
-
-//when using this function check for failure return value of -1
-function processJSONTweet(jsonTweet){
-	if(jsonTweet.coordinates){
-		addMarkerToMap(jsonTweet.coordinates);
-		//TODO: check if these need to be converted
-	}
-	//if coordinates is null then use user.location (the location they set in their profile)
-	else if(jsonTweet.user.location){
-		geocoder.geocode({'address': tweet.user.location}, function(results, status) {
-			if (status === 'OK') {
-				if (results[0]) {
-					addMarkerToMap(results[0].geometry.location, results[0].formatted_address);
-				}
-			}
-			else{
-				console.log("Error geocoding JSON user location");
-				return -1;
-			}
-		});	
-	}
-	else {
-		console.log("JSON contained no tweet or user location");
-		return -1;
-	}
-	return jsonTweet; //is this necessary? depends what we do after
-}
-
-
-//remember these URLs don't exist so user can't refresh page or share URL - need to fix this somehow??
-function updateHistory(state, relativeURL){
-	if(!!(window.history && history.pushState)){	//check browser supports HTML5 History API
-		//history.pushState('{}', null, './fml'); //add new history entry and change to that URL without reloading page
-		//TODO: only uncomment this if running on a server e.g. on localhost rather than opening directly in browser
-	}
-}
-
-//TODO: fix links so not using # href: https://stackoverflow.com/questions/134845/which-href-value-should-i-use-for-javascript-links-or-javascriptvoid0?rq=1
-//TODO: add little popup to explain to user if they're on desktop that location is v approximate
-
-
+//TODO: graph plotting from tweet data - Gaspar
 
 
 /* BACKUP CODE
