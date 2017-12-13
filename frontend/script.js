@@ -172,8 +172,13 @@ window.onload = function () {
 	document.getElementById('reset').addEventListener('click', function() {
 		resetMap();
 	});
-	//add address autocomplete
+	//add address autocomplete, get coords automatically on address change
 	var autocomplete = new google.maps.places.Autocomplete(document.getElementById('search_address'));
+	google.maps.event.addListener(autocomplete, 'place_changed', function() {
+		searchLatitude = autocomplete.getPlace().geometry.location.lat();
+		searchLongitude = autocomplete.getPlace().geometry.location.lng();
+	});
+	
 	//fill map styles select element from styles array
 	document.getElementById("map_style").innerHTML = Object.keys(styles).map(function(styleName, styleJSON) {
 		return '<option value="'+styleName+'">'+styleName+'</option>'; })
@@ -207,6 +212,8 @@ function showErrorPopup(errorMsg){
 // User Search
 // ===========
 
+//TODO: this should just add user current location into search query box
+//then maybe a marker hidden until after search
 function searchUserCurrentLocation() {
 	
 	if(navigator.geolocation) {
@@ -235,6 +242,29 @@ function searchUserCurrentLocation() {
 	
 	return false; //stops link reloading page?
 }
+
+function getCoordinatesOfAddress(address){
+	geocoder.geocode({'address': userInput}, function(results, status) {
+		if (status === 'OK') {
+			if (results[0]) {
+				return results[0].geometry.location;
+			}
+		}
+		else {	// no results, server error, request timed out, etc
+			console.log('Coordinate search failed due to the following error: ' + status);
+			return null; //error
+		}
+	});	
+}
+
+/*
+map.setCenter(results[0].geometry.location);
+				addMarkerToMap(results[0].geometry.location, results[0].formatted_address); 
+				var circleRadius = document.getElementById('search_radius').value;		//defaults to first option (0.01) if none selected
+				circles.push({center: results[0].geometry.location, radius: circleRadius});
+				update();	//redraw map overlay
+				
+*/
 
 /*
 function searchUserInputLocation() {
@@ -277,7 +307,7 @@ function search() {
 		$('#search').popover('hide');
 		var query = [];
 		var error = false;
-		if(latitude !== null && longitude !== null) {
+		if(searchLatitude !== null && searchLongitude !== null) {
 			// ugh geocoding is async so need to do it as soon as they enter an address, would prefer to do it server-side tbh
 			query.push('latitude= ' + searchLatitude + '&'); 
 			query.push('longitude= ' + searchLongitude + '&'); 
@@ -357,11 +387,16 @@ function processJSONResponse(){
 	}
 }
 
+//Adds marker for tweet if it has coords or a user location. Displays location and tweet text only.
 function processJSONTweet() {
-	//TODO: turn this into a separate function processJSONTweet if it gets any longer
-	if(jsonTweet.coordinates){
-		addMarkerToMap(jsonTweet.coordinates, jsonTweet.TITLE);
-		//TODO: check if these need to be converted
+	//see https://developer.twitter.com/en/docs/tweets/data-dictionary/overview/tweet-object for details of tweet properties
+	if(jsonTweet.coordinates){	
+		var coords = jsonTweet.coordinates[0];
+		var pos = {
+			lat: coords[0];
+			lng: coords[1];
+		}
+		addMarkerToMap(new google.maps.LatLng(pos), jsonTweet.text);
 		document.getElementById('result_count').value += 1; //or use this.responseText.search_metadata.count
 	}
 	//if coordinates is null then use user.location (the location they set in their profile)
@@ -369,7 +404,7 @@ function processJSONTweet() {
 		geocoder.geocode({'address': tweet.user.location}, function(results, status) {
 			if (status === 'OK') {
 				if (results[0]) {
-					addMarkerToMap(results[0].geometry.location, results[0].formatted_address);
+					addMarkerToMap(results[0].geometry.location, jsonTweet.title);
 					document.getElementById('result_count').value += 1;
 				}
 			}
