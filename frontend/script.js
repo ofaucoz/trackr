@@ -15,6 +15,8 @@ var infoWindow;
 var searchLatitude;
 var searchLongitude;
 var userLocationSet;
+var resultCount;
+var debugMode = true;	//set this to false to disable hard-coded JSON "response" from "server"
 
 // Map Themes
 // ==========
@@ -55,21 +57,12 @@ function makeMap() {
 	infoWindow = new google.maps.InfoWindow();
 	bounds = new google.maps.LatLngBounds();
 	userLocationSet = false;
+	resultCount = 0;
 	
-	//link up to database to get twitter data goes here!!!! and replaces var data
-	var data = [
-        {title: 'Alte Technik', location: {lat: 47.068971, lng: 15.450100}},
-        {title: 'Kopernikusgasse', location: {lat: 47.064993, lng: 15.450765}},
-        {title: 'Inffeldgasse', location: {lat: 47.058339, lng: 15.457897}}
-    ];
-	
-	for (var i = 0; i < data.length; i++) {
-		addMarkerToMap(data[i].location, data[i].title);
-	}	
 }
 
 function resize() {
-	//TODO
+	//CanvasLayer requires this definition
 }
 
 //this draws our HTML5 Canvas map overlay
@@ -270,7 +263,6 @@ function searchUserCurrentLocation() {
 	return false; //stops link reloading page?
 }
 
-
 function search() {
 	if(!document.getElementById('hashtag').value && (searchLatitude === null) && (searchLongitude===null)) {
 		showErrorPopup("Please enter some search criteria.");
@@ -279,7 +271,6 @@ function search() {
 		//example query http://localhost:8080/trackr/search?latitude=47.076668&longitude=15.421371&radius=1mi&hashtag=tugraz
 		$('#search').popover('hide');
 		var query = [];
-		var error = false;
 		if(searchLatitude !== undefined && searchLongitude !== undefined) {
 			query.push('latitude=' + searchLatitude + '&'); 
 			query.push('longitude=' + searchLongitude + '&'); 
@@ -294,24 +285,34 @@ function search() {
 		if(document.getElementById('hashtag').value) {
 			query.push('hashtag=' + sanitizeUserInput(document.getElementById('hashtag').value));
 		}
-		if(!error){
-			query = query.join('');
-			if(query.charAt(query.length - 1) == '&'){  //remove trailing &s
-				query = query.substr(0, query.length - 2);
+		query = query.join('');
+		if(query.charAt(query.length - 1) == '&'){  //remove trailing &s
+			query = query.substr(0, query.length - 2);
+		}
+		
+		if(window.XMLHttpRequest){
+			if(debugMode){
+				console.log("DEBUG MODE, loading hard-coded tweet, not from server");
+				console.log("Query is " + query);
+				var debugTweets = '{"statuses":[{"coordinates":{"coordinates":[47.070794,15.438391],"type":"Point"},"favorited":false,"truncated":false,"created_at":"Mon Sep 24 03:35:21 +0000 2012","id_str":"250075927172759552","entities":{"urls":[],"hashtags":[{"text":"freebandnames","indices":[20,34]}],"user_mentions":[]},"in_reply_to_user_id_str":null,"contributors":null,"text":"Aggressive Ponytail #freebandnames","metadata":{"iso_language_code":"en","result_type":"recent"},"retweet_count":0,"in_reply_to_status_id_str":null,"id":250075927172759550,"geo":null,"retweeted":false,"in_reply_to_user_id":null,"place":null,"user":{"profile_sidebar_fill_color":"DDEEF6","profile_sidebar_border_color":"C0DEED","profile_background_tile":false,"name":"Sean Cummings","profile_image_url":"http://a0.twimg.com/profile_images/2359746665/1v6zfgqo8g0d3mk7ii5s_normal.jpeg","created_at":"Mon Apr 26 06:01:55 +0000 2010","location":"LA, CA","follow_request_sent":null,"profile_link_color":"0084B4","is_translator":false,"id_str":"137238150","entities":{"url":{"urls":[{"expanded_url":null,"url":"","indices":[0,0]}]},"description":{"urls":[]}},"default_profile":true,"contributors_enabled":false,"favourites_count":0,"url":null,"profile_image_url_https":"https://si0.twimg.com/profile_images/2359746665/1v6zfgqo8g0d3mk7ii5s_normal.jpeg","utc_offset":-28800,"id":137238150,"profile_use_background_image":true,"listed_count":2,"profile_text_color":"333333","lang":"en","followers_count":70,"protected":false,"notifications":null,"profile_background_image_url_https":"https://si0.twimg.com/images/themes/theme1/bg.png","profile_background_color":"C0DEED","verified":false,"geo_enabled":true,"time_zone":"Pacific Time (US & Canada)","description":"Born 330 Live 310","default_profile_image":false,"profile_background_image_url":"http://a0.twimg.com/images/themes/theme1/bg.png","statuses_count":579,"friends_count":110,"following":null,"show_all_inline_media":false,"screen_name":"sean_cummings"},"in_reply_to_screen_name":null,"source":"Twitter for Mac","in_reply_to_status_id":null},{"coordinates":{"coordinates":[47.098387,15.398423],"type":"Point"},"favorited":false,"truncated":false,"created_at":"Fri Sep 21 23:40:54 +0000 2012","id_str":"249292149810667520","entities":{"urls":[],"hashtags":[{"text":"FreeBandNames","indices":[20,34]}],"user_mentions":[]},"in_reply_to_user_id_str":null,"contributors":null,"text":"Thee Namaste Nerdz. #FreeBandNames","metadata":{"iso_language_code":"pl","result_type":"recent"},"retweet_count":0,"in_reply_to_status_id_str":null,"id":249292149810667520,"geo":null,"retweeted":false,"in_reply_to_user_id":null,"place":null,"user":{"profile_sidebar_fill_color":"DDFFCC","profile_sidebar_border_color":"BDDCAD","profile_background_tile":true,"name":"Chaz Martenstein","profile_image_url":"http://a0.twimg.com/profile_images/447958234/Lichtenstein_normal.jpg","created_at":"Tue Apr 07 19:05:07 +0000 2009","location":"Durham, NC","follow_request_sent":null,"profile_link_color":"0084B4","is_translator":false,"id_str":"29516238","entities":{"url":{"urls":[{"expanded_url":null,"url":"http://bullcityrecords.com/wnng/","indices":[0,32]}]},"description":{"urls":[]}},"default_profile":false,"contributors_enabled":false,"favourites_count":8,"url":"http://bullcityrecords.com/wnng/","profile_image_url_https":"https://si0.twimg.com/profile_images/447958234/Lichtenstein_normal.jpg","utc_offset":-18000,"id":29516238,"profile_use_background_image":true,"listed_count":118,"profile_text_color":"333333","lang":"en","followers_count":2052,"protected":false,"notifications":null,"profile_background_image_url_https":"https://si0.twimg.com/profile_background_images/9423277/background_tile.bmp","profile_background_color":"9AE4E8","verified":false,"geo_enabled":false,"time_zone":"Eastern Time (US & Canada)","description":"You will come to Durham, North Carolina. I will sell you some records then, here in Durham, North Carolina. Fun will happen.","default_profile_image":false,"profile_background_image_url":"http://a0.twimg.com/profile_background_images/9423277/background_tile.bmp","statuses_count":7579,"friends_count":348,"following":null,"show_all_inline_media":true,"screen_name":"bullcityrecords"},"in_reply_to_screen_name":null,"source":"web","in_reply_to_status_id":null},{"coordinates":null,"favorited":false,"truncated":false,"created_at":"Fri Sep 21 23:30:20 +0000 2012","id_str":"249289491129438208","entities":{"urls":[],"hashtags":[{"text":"freebandnames","indices":[29,43]}],"user_mentions":[]},"in_reply_to_user_id_str":null,"contributors":null,"text":"Mexican Heaven, Mexican Hell #freebandnames","metadata":{"iso_language_code":"en","result_type":"recent"},"retweet_count":0,"in_reply_to_status_id_str":null,"id":249289491129438200,"geo":null,"retweeted":false,"in_reply_to_user_id":null,"place":null,"user":{"profile_sidebar_fill_color":"99CC33","profile_sidebar_border_color":"829D5E","profile_background_tile":false,"name":"Thomas John Wakeman","profile_image_url":"http://a0.twimg.com/profile_images/2219333930/Froggystyle_normal.png","created_at":"Tue Sep 01 21:21:35 +0000 2009","location":"Andritz Graz ?sterreich","follow_request_sent":null,"profile_link_color":"D02B55","is_translator":false,"id_str":"70789458","entities":{"url":{"urls":[{"expanded_url":null,"url":"","indices":[0,0]}]},"description":{"urls":[]}},"default_profile":false,"contributors_enabled":false,"favourites_count":19,"url":null,"profile_image_url_https":"https://si0.twimg.com/profile_images/2219333930/Froggystyle_normal.png","utc_offset":-18000,"id":70789458,"profile_use_background_image":true,"listed_count":1,"profile_text_color":"3E4415","lang":"en","followers_count":63,"protected":false,"notifications":null,"profile_background_image_url_https":"https://si0.twimg.com/images/themes/theme5/bg.gif","profile_background_color":"352726","verified":false,"geo_enabled":false,"time_zone":"Eastern Time (US & Canada)","description":"Science Fiction Writer, sort of. Likes Superheroes, Mole People, Alt. Timelines.","default_profile_image":false,"profile_background_image_url":"http://a0.twimg.com/images/themes/theme5/bg.gif","statuses_count":1048,"friends_count":63,"following":null,"show_all_inline_media":false,"screen_name":"MonkiesFist"},"in_reply_to_screen_name":null,"source":"web","in_reply_to_status_id":null},{"coordinates":null,"favorited":false,"truncated":false,"created_at":"Fri Sep 21 22:51:18 +0000 2012","id_str":"249279667666817024","entities":{"urls":[],"hashtags":[{"text":"freebandnames","indices":[20,34]}],"user_mentions":[]},"in_reply_to_user_id_str":null,"contributors":null,"text":"The Foolish Mortals #freebandnames","metadata":{"iso_language_code":"en","result_type":"recent"},"retweet_count":0,"in_reply_to_status_id_str":null,"id":249279667666817020,"geo":null,"retweeted":false,"in_reply_to_user_id":null,"place":null,"user":{"profile_sidebar_fill_color":"BFAC83","profile_sidebar_border_color":"615A44","profile_background_tile":true,"name":"Marty Elmer","profile_image_url":"http://a0.twimg.com/profile_images/1629790393/shrinker_2000_trans_normal.png","created_at":"Mon May 04 00:05:00 +0000 2009","location":"Mariatrost Graz","follow_request_sent":null,"profile_link_color":"3B2A26","is_translator":false,"id_str":"37539828","entities":{"url":{"urls":[{"expanded_url":null,"url":"http://www.omnitarian.me","indices":[0,24]}]},"description":{"urls":[]}},"default_profile":false,"contributors_enabled":false,"favourites_count":647,"url":"http://www.omnitarian.me","profile_image_url_https":"https://si0.twimg.com/profile_images/1629790393/shrinker_2000_trans_normal.png","utc_offset":-21600,"id":37539828,"profile_use_background_image":true,"listed_count":52,"profile_text_color":"000000","lang":"en","followers_count":608,"protected":false,"notifications":null,"profile_background_image_url_https":"https://si0.twimg.com/profile_background_images/106455659/rect6056-9.png","profile_background_color":"EEE3C4","verified":false,"geo_enabled":false,"time_zone":"Central Time (US & Canada)","description":"Cartoonist, Illustrator, and T-Shirt connoisseur","default_profile_image":false,"profile_background_image_url":"http://a0.twimg.com/profile_background_images/106455659/rect6056-9.png","statuses_count":3575,"friends_count":249,"following":null,"show_all_inline_media":true,"screen_name":"Omnitarian"},"in_reply_to_screen_name":null,"source":"Twitter for iPhone","in_reply_to_status_id":null}],"search_metadata":{"max_id":250126199840518140,"since_id":24012619984051000,"refresh_url":"?since_id=250126199840518145&q=%23freebandnames&result_type=mixed&include_entities=1","next_results":"?max_id=249279667666817023&q=%23freebandnames&count=4&include_entities=1&result_type=mixed","count":4,"completed_in":0.035,"since_id_str":"24012619984051000","query":"%23freebandnames","max_id_str":"250126199840518145"}}';
+				processJSONResponse(debugTweets);
 			}
-			if(window.XMLHttpRequest){
+			else {
 				var request = new XMLHttpRequest();
 				request.onreadystatechange = processJSONResponse;
-				console.log(query);
 				request.open('GET', 'http://localhost:8080/trackr/search?' + query, true);
 				request.send(null);
+				//updateHistory('null', query);	            //TODO: fix HTML5 history usage - this doesn't update page
 			}
-			//else{
-				//need alternative way of communicating with server, or just show error
-			//} 
+			
 		}
+		else{
+			console.log("Sorry, your browser doesn't support AJAX - please try a more up-to-date browser!");
+			//TODO: alternatives here?
+		} 
 	}
 }
+
 
 //TODO: sanitizeUserInput for autocomplete too? or does Google's code handle that
 function sanitizeUserInput(input) {
@@ -326,57 +327,84 @@ function sanitizeUserInput(input) {
 //====================
 
 
-function processJSONResponse(){
-	if (this.readyState == 4 && this.status == 200) {	//response OK
-		updateHistory('null', query);
-		document.getElementById('show-on-results').style.display = '';
-		tweets = JSON.parse(this.responseText.statuses);
-		for(tweet in tweets){
-			processJSONTweet(tweet);
+function processJSONResponse(debugTweets){
+	if (debugMode) {
+		resetResultCount();
+		var tweets = JSON.parse(debugTweets); //DEBUG
+		for(var i = 0; i < tweets.statuses.length; i++){
+			processTweet(tweets.statuses[i]);
 		}
 		if(userLocationSet) {
 			addMarkerToMap(defaultLocation, "Current Location");
 		}
 		update(); //redraw map overlay
-    }
+		document.getElementById('show-on-results').style.display = '';
+	}
 	else {
-		console.log("Error retrieving tweets from server");
-		//TODO: cases for all possible errors/states?
+		if (this.readyState == 4 && this.status == 200) {	//response OK
+			resetResultCount();
+			tweets = JSON.parse(this.responseText);
+			var tweets = JSON.parse(this.responseText);
+			for(var i = 0; i < tweets.statuses.length; i++){
+				processTweet(tweets.statuses[i]);
+			}
+			if(userLocationSet) {
+				addMarkerToMap(defaultLocation, "Current Location");
+			}
+			update(); //redraw map overlay
+			document.getElementById('show-on-results').style.display = '';
+		}
+		else {
+			console.log("Error retrieving tweets from server");
+		}
 	}
 }
 
 //Adds marker for tweet if it has coords or a user location. Displays location and tweet text only.
-function processJSONTweet() {
-	//see https://developer.twitter.com/en/docs/tweets/data-dictionary/overview/tweet-object for details of tweet properties
-	if(jsonTweet.coordinates){	
-		var coords = jsonTweet.coordinates[0];
+//See https://developer.twitter.com/en/docs/tweets/data-dictionary/overview/tweet-object for details of tweet properties
+function processTweet(tweet) {
+	if(tweet.coordinates){	
+		var coords = tweet.coordinates.coordinates;    //this looks bizarre I know but it's right
 		var pos = {
 			lat: coords[0],
 			lng: coords[1],
 		};
-		addMarkerToMap(new google.maps.LatLng(pos), jsonTweet.text);
-		document.getElementById('result_count').value += 1; //or use this.responseText.search_metadata.count
+		addMarkerToMap(new google.maps.LatLng(pos), tweet.text);
+		incrementResultCount(); 
 	}
-	//if coordinates is null then use user.location (the location they set in their profile)
-	else if(jsonTweet.user.location){
-		geocoder.geocode({'address': tweet.user.location}, function(results, status) {
-			if (status === 'OK') {
-				if (results[0]) {
-					addMarkerToMap(results[0].geometry.location, jsonTweet.title);
-					document.getElementById('result_count').value += 1;
-					update(); //need to redraw map overlay here as in callback, we have probably missed main update
+	//else if(tweet.place){
+		//TODO
+	//}
+	else if(tweet.user.location){ 		//if coordinates is null then use user.location (the location they set in their profile)
+		geocoder.geocode({'address': tweet.user.location}, function(tweet){		//double anonymous functions to bake tweet data into callback
+			return(function(results, status){
+				if (status == google.maps.GeocoderStatus.OK) {
+					if (results[0]) {
+						addMarkerToMap(results[0].geometry.location, tweet.text); //TODO: fix this is undefined here bc callback has no access
+						incrementResultCount();
+						update();
+					}
 				}
-			}
-			else{
-				console.log("Error geocoding JSON user location");
-			}
-		});	
+				else{
+					console.log("Error geocoding JSON user location");
+				}
+			});
+		}(tweet));
 	}
 	else {
 		console.log("Error: tweet contained no coords or user location");
 	}
 }
 
+function incrementResultCount(){
+	resultCount++;
+	document.getElementById('result_count').innerHTML = resultCount.toString();
+}
+
+function resetResultCount(){
+	resultCount = 0;
+	document.getElementById('result_count').innerHTML = '0';
+}
 
 /* TODO:
 	* Also option to switch between map / satellite mode etc
