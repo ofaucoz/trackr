@@ -3,6 +3,7 @@ package servlet;
 import static org.apache.commons.lang3.StringEscapeUtils.escapeHtml4;
 
 import java.io.IOException;
+import java.io.OutputStreamWriter;
 import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.List;
@@ -42,7 +43,7 @@ public class SearchServlet extends HttpServlet implements Servlet {
 
 	protected void doGet(HttpServletRequest request, HttpServletResponse response)
 			throws ServletException, IOException {
-		System.out.println(request.toString());
+		response.setCharacterEncoding("UTF-8");
 		PrintWriter out = response.getWriter();
 		Session session = SFactory.getSession();
 		List<Tweet> listTweet = new ArrayList<Tweet>();
@@ -52,11 +53,9 @@ public class SearchServlet extends HttpServlet implements Servlet {
 		String radius = request.getParameter("radius");
 		String url = "https://api.twitter.com/1.1/search/tweets.json?";
 		if(hashtag != null) {
-			System.out.println("hashtag");
 			url += "q=" + hashtag;
 		}
 		if(latitude!=null&&longitude!=null&&radius!=null) {
-			System.out.println("geocode");
 			url += "geocode=" + latitude + "," + longitude + "," + radius;
 		}
 		TwitterBuilder twitterBuilder = new TwitterBuilder();
