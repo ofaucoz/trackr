@@ -16,7 +16,7 @@ var searchLatitude;
 var searchLongitude;
 var userLocationSet;
 var resultCount;
-var debugMode = true;	//set this to false to disable hard-coded JSON "response" from "server"
+var debugMode = false;	//set this to false to disable hard-coded JSON "response" from "server"
 
 // Map Themes
 // ==========
@@ -345,8 +345,8 @@ function processJSONResponse(debugTweets){
 			resetResultCount();
 			tweets = JSON.parse(this.responseText);
 			var tweets = JSON.parse(this.responseText);
-			for(var i = 0; i < tweets.statuses.length; i++){
-				processTweet(tweets.statuses[i]);
+			for(var i = 0; i < tweets.length; i++){
+				processTweet(tweets[i]);
 			}
 			if(userLocationSet) {
 				addMarkerToMap(defaultLocation, "Current Location");
@@ -354,16 +354,14 @@ function processJSONResponse(debugTweets){
 			update(); //redraw map overlay
 			document.getElementById('show-on-results').style.display = '';
 		}
-		else {
-			console.log("Error retrieving tweets from server");
-		}
 	}
 }
 
 //Adds marker for tweet if it has coords or a user location. Displays location and tweet text only.
 //See https://developer.twitter.com/en/docs/tweets/data-dictionary/overview/tweet-object for details of tweet properties
 function processTweet(tweet) {
-	if(tweet.coordinates){	
+	//TODO: THIS IS DISABLED, FIX AND RE-ENABLE
+	if(false && tweet.coordinates){	
 		var coords = tweet.coordinates.coordinates;    //this looks bizarre I know but it's right
 		var pos = {
 			lat: coords[0],
