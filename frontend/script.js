@@ -221,15 +221,7 @@ window.onload = function () {
 		document.getElementById("overlayButtonTab").classList.remove("active");
 		hideOverlay();
 	}
-	//document.getElementById("documentation").onclick = function() {
-		//document.getElementById("documentation").style.display = "none";
-	//}
 };
-
-//used to hide project documentation overlay onclick
-function hideOverlay(){
-	document.getElementById("overlayFrame").style.display = "none";
-}
 
 function updateMapStyle() {
 	map.setOptions( { styles: styles[document.getElementById("map_style").value] } );
