@@ -211,7 +211,25 @@ window.onload = function () {
 	document.getElementById("map_style").innerHTML = Object.keys(styles).map(function(styleName, styleJSON) {
 		return '<option value="'+styleName+'">'+styleName+'</option>'; })
 	.join('');
+	document.getElementById("overlayButton").onclick = function() {
+		document.getElementById("overlayButtonTab").classList.add("active");
+		document.getElementById("mapButtonTab").classList.remove("active");
+		document.getElementById("overlayFrame").style.display = "block";
+	}
+	document.getElementById("mapButton").onclick = function(){
+		document.getElementById("mapButtonTab").classList.add("active");
+		document.getElementById("overlayButtonTab").classList.remove("active");
+		hideOverlay();
+	}
+	//document.getElementById("documentation").onclick = function() {
+		//document.getElementById("documentation").style.display = "none";
+	//}
 };
+
+//used to hide project documentation overlay onclick
+function hideOverlay(){
+	document.getElementById("overlayFrame").style.display = "none";
+}
 
 function updateMapStyle() {
 	map.setOptions( { styles: styles[document.getElementById("map_style").value] } );
