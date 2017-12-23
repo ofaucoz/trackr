@@ -39,8 +39,8 @@
         <div class="navbar-collapse collapse">
           <ul class="nav navbar-nav navbar-right">
 			<!-- TODO: sort links here, remember it should be a one-page app -->
-            <li class='active'><a href="#">Map</a></li>
-            <li><a href="#">About</a></li>
+            <li class='active' id="mapButtonTab"><a href="#" id="mapButton">Map</a></li>
+            <li id="overlayButtonTab"><a href="#" id="overlayButton">About</a></li>
           </ul>
         </div>
       </div>
@@ -150,6 +150,10 @@
 			$('[data-toggle="popover"]').popover()	//enables Bootstrap popovers
 		})
     </script>
+	
+	<div id="overlayFrame">
+		 <object id="documentation" width="100%" height="100%" data="ProjectDocumentation.html"></object> 
+	</div>
 	
 </body>
 

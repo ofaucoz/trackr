@@ -212,8 +212,23 @@ window.onload = function () {
 	currentDate = currentDate.toISOString().split('T')[0];
 	document.getElementById("until_date").setAttribute("max", currentDate);	
 	document.getElementById("until_date").setAttribute("min", minDate);
+	document.getElementById("overlayButton").onclick = function() {
+		document.getElementById("overlayButtonTab").classList.add("active");
+		document.getElementById("mapButtonTab").classList.remove("active");
+		document.getElementById("overlayFrame").style.display = "block";
+	}
+	document.getElementById("mapButton").onclick = function(){
+		document.getElementById("mapButtonTab").classList.add("active");
+		document.getElementById("overlayButtonTab").classList.remove("active");
+		hideOverlay();
+}
 };
 document.addEventListener('DOMContentLoaded', makeMap, false);   //Do I actually need this?
+
+//used to hide project documentation overlay onclick
+function hideOverlay(){
+	document.getElementById("overlayFrame").style.display = "none";
+}
 
 //remember these URLs don't exist so user can't refresh page or share URL - need to fix this somehow??
 function updateHistory(state, relativeURL){
