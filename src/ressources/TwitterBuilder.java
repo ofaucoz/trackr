@@ -25,6 +25,7 @@ import org.apache.http.client.HttpClient;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.impl.client.HttpClientBuilder;
 import org.hibernate.Session;
+import org.hibernate.exception.GenericJDBCException;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -34,6 +35,8 @@ import oauth.signpost.commonshttp.CommonsHttpOAuthConsumer;
 import oauth.signpost.exception.OAuthCommunicationException;
 import oauth.signpost.exception.OAuthExpectationFailedException;
 import oauth.signpost.exception.OAuthMessageSignerException;
+
+import com.vdurmont.emoji.EmojiParser;
 
 public class TwitterBuilder {
 
@@ -181,8 +184,9 @@ public class TwitterBuilder {
 					try {
 						value = (Date) format.parse((String) entry.getValue());
 					} catch (ParseException e1) {
-						// TODO Auto-generated catch block
 						value = (String) entry.getValue();
+						value = EmojiParser.removeAllEmojis((String) value);
+						
 					}
 				try {
 					switch (list_entry[1]) {
@@ -207,15 +211,21 @@ public class TwitterBuilder {
 				} catch (Exception exc) {
 				}
 			}
-			// System.out.println("user for example : " + u.getDescription());
 			t.setUser(u);
 			t.setEntities(e);
 			session.getTransaction().begin();
-			session.save(u);
-			session.save(e);
-			session.save(t);
-			session.getTransaction().commit();
-			listTweet.add(t);
+			try {
+				session.save(u);
+				session.save(e);
+				session.save(t);
+				session.getTransaction().commit();
+				listTweet.add(t);
+			}
+			//there are some emojis unhandled by EmojiParser - these cause an exception in the database - so skip the tweet
+			catch(GenericJDBCException exception) {
+				System.out.println(exception.getStackTrace());
+				session.getTransaction().rollback();
+			}
 		}
 		return listTweet;
 
@@ -238,7 +248,7 @@ public class TwitterBuilder {
 		}
 		return this.createTable(values, session);
 	}
-
+	
 	public static void main(String[] args) {
 		try {
 			ArrayList<String> path = new ArrayList<String>();
