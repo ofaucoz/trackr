@@ -1,0 +1,124 @@
+<!doctype html>
+
+<html lang="en">
+
+<head>
+
+	<meta charset="utf-8">
+	<title>#Trackr - Report</title>
+	<meta name="projectdocumentation" content="#Trackr">
+	<meta name="author" content="ColumbusCode">
+  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+
+	<link rel="stylesheet" href="reportstyles.css">
+	<link href="https://fonts.googleapis.com/css?family=Nova+Mono|Open+Sans" rel="stylesheet">
+
+</head>
+
+<body>
+	<div id="box">
+		<header>
+			<h1>#trackr - Report</h1>
+			<hr>
+		</header>
+		<article>
+			<ul>
+				<li id="text">
+				#Trackr is a single page web application which enables users to track Twitters trends
+					geographically by displaying a data layer of tweet locations over a
+					Google Map. </br></br>
+					The menu on the left hand side allows the user to filter tweets by hashtag, location and time/date to
+					track and display them in the Google Map. The filtered tweets appear as markers inside the selected
+					region, colored in blue. By clicking one of the markers, information about the tweet is shown:
+					tweet text, Tweter's name and picture...</br></br>
+					The chart under the menu shows...
+					//I will put a different photo (or photos) that shows the performance of the final app
+				</li>
+				<li id="image" align = "left"><img src = "mapimage.png" alt="app map image"></li>
+			</ul>
+			<h3> App Architecture </h3>
+			<ul>
+				<li id="image" align = "right"><img src = "Architecture.png" alt="app map image"></li>
+				<li id="text">The app follows the MVC (Model-View-Controller) design pattern,
+					ensuring that the Tweet data (MySQL database), control (Wildfly +
+					Hibernate server stack) and user interface (HTML5, CSS and Javascript)
+					are separated and commmunicate via clear
+					APIs. The core HTML5 feature used is Canvas (to draw the selected areas
+					onto the map) and the app also make use of the geolocation
+					API and semantic markup.
+				</li>
+			</ul>
+			<ul>
+				<li id="text"> <b>Back end </b> <br><br>
+					The server-side has been developed with Java language and it is composed by a tweet database and
+					a control. <br><br>
+					The tweet database has been implemented with MySQL Database and it is in charge of store the data
+					from recent searchers (in order to reduce the number of API calls). This data contains different tweet
+					information (text, hashtag, location, user's information...) that is needed for running the app and
+					information of interesting for the user. <br><br>
+					// I need Orphee to help me
+				</li>
+				<li id="text"> <b> Front end </b> <br><br>
+					The front end has been developed has a single-page interface designed to be responsive for a range of
+					screen sizes (optimised for desktops browsers and mobile phones). It has been implemented with
+					HTML5, CSS and Javascript (Using Bootstrap framework).  <br><br>
+					<i>HTML5.</i> The HTML5 is designed to organize the web page content in three parts: the menu (for filtering
+					the tweets), the Google Maps layer and the chart, where the data is displeyed. It also contains the
+					links to the style sheet, JavaScript, Canvas and the Bootstrap libraries.<br><br>
+					<i>CSS.</i> The CSS implements the style of the web page. In order to achieve a modern, clear and clean
+					design, Columbus Team has chosen a BootstrapCDN template for forms, buttons and other user
+					interface items. <br><br>
+					<i>JavaScript.</i> The JavaScript code allows the client's interaction with the app. It uses the client's
+					requirements (location, time and hashtag) to display the data onto the map layer and the chart.
+					Everytime that a research is done, the desired location is shown in the map with a canvas blue cercle.
+					Inside this cercle, the filtered tweets appear as blue markers. It is possible to select any of these
+					markers to get further information about the tweet. In order make sure about which tweet is selected,
+					the marker change its colour to yellow when it is clicked. Furthermore, JavaScript ensures the total
+					data overview by changing the boundaries of the map layer after every research. The client can also
+					choose between two different map themes.<br>
+					In order to make the web page feel more responsive, an asynchronous application model with AJAX and JS
+					has been implemented. The code is also prepared to reset the information on the Google Maps layer (by clicking
+					the reset button) and to display an error message if there is any issue during its performance.
+				</li>
+			</ul>
+			<h3> Highlight used technologies </h3>
+			<ul>
+				<li id="text"> #trackr is a pure web application (no browser Plug-ins)
+					that uses different Web Technologies: <br><br>
+					<i>Canvas.</i> The core HTML5 technology used is canvas. It has been implemented to encircle
+					dynamically the desired locations that filter the tweets. The menu on the left hand side allows the user
+					to choose where the center is going to be placed and its radius. According to the client requirements,
+					afterwards it is also possible to increase and decrease the radius of every circle. <br><br>
+					<i>Geolocation API.</i> Google Maps Geolocation API collects the tweet's location information and
+					displays it onto the maps layer with markers. Furthermore, the InfoWindows object of Google Maps API
+					shows the tweets content in a pop-up window.<br><br>
+					<i>Semantic markups.</i> The HTML5 has been implemented with different semantic markups
+					(//exemples).<br><br>
+					<i>D3js chart.</i> #trackr has implemented D3js JavaScript library to draw the chart using SVG.
+					//I need Gaspar to tell me what is the finall chart about<br><br>
+					<i>AJAX.</i> //I have to write also about AJAX here<br><br>
+				</li>
+				<li id="text"> If you use a database and scripting on the server, then document this //Orphee?</li>
+			</ul>
+			<ul>
+				<li id="text"> Discussion: what worked well, which problems did you encounter //Cath, can you help
+				me to summarize it?</li>
+			</ul>
+		</div>
+		</aticle>
+		<footer>
+			<hr>
+			<p> WT - Project Documentation - Group 3 </p>
+			<p> Columbus Code: </p>
+			<ul>
+				<li> Orpheé Faucoz </li>
+				<li> Catherine Easdon </li>
+				<li> Gáspár Kövesi </li>
+				<li> Andrea Saba </li>
+			</ul>
+			<p> WS 2017/18</p>
+		</footer>
+	</div>
+</body>
+
+</html>
