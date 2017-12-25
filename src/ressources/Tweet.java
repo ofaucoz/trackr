@@ -17,7 +17,11 @@ import org.hibernate.Session;
 @javax.persistence.Entity
 @Table(name = "tweet")
 public class Tweet {
-	
+	/**
+	 *
+	 * Tweet object representating the tweet object from the Twitter API
+	 * 
+	 */
 	
 	public Tweet(String in_reply_to_status_id_str, String in_reply_to_status_id, Date created_at, String source,
 			Integer retweet_count, String retweeted, String geo, String in_reply_to_screen_name, String is_quote_status,

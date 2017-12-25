@@ -35,14 +35,24 @@ import oauth.signpost.commonshttp.CommonsHttpOAuthConsumer;
 import oauth.signpost.exception.OAuthCommunicationException;
 import oauth.signpost.exception.OAuthExpectationFailedException;
 import oauth.signpost.exception.OAuthMessageSignerException;
-
+/**
+ * 
+ * Wrapper for tweets whose aim is to query twitter api 
+ * and create tweets instances and then push them into the database
+ *
+ */
 public class TwitterBuilder {
 
 	private String consumerKey;
 	private String consumerSecret;
 	private String accessToken;
 	private String accessTokenSecret;
-
+	
+	/**
+	 * 
+	 * Twitter Builder Constructor, it gets the tokens for the Twitter API from a local file
+	 *
+	 */
 	public TwitterBuilder() throws IOException {
 		super();
 		Properties prop = new Properties();
@@ -56,7 +66,20 @@ public class TwitterBuilder {
 		accessToken = prop.getProperty("accessToken");
 		accessTokenSecret = prop.getProperty("accessTokenSecret");
 	}
-
+	/**
+	 * 
+	 * Function that ask twitter REST API for a specific query by using HTTP 
+	 * and putting the response inside a JSON Object
+	 * 
+	 * @param url Url for querying the twitter api
+	 * @return JSONObject from the twitterAPI
+	 * @throws UnsupportedOperationException
+	 * @throws IOException
+	 * @throws OAuthMessageSignerException
+	 * @throws OAuthExpectationFailedException
+	 * @throws OAuthCommunicationException
+	 * @throws JSONException
+	 */
 	public JSONObject request(String url) throws UnsupportedOperationException, IOException,
 			OAuthMessageSignerException, OAuthExpectationFailedException, OAuthCommunicationException, JSONException {
 		OAuthConsumer oAuthConsumer = new CommonsHttpOAuthConsumer(consumerKey, consumerSecret);
@@ -82,7 +105,16 @@ public class TwitterBuilder {
 		return obj;
 
 	}
-
+	/**
+	 * 
+	 * For every path from the Objects we retrieve the values corresponding to those objects
+	 * 
+	 * @param arr Array of JSON Objects corresponding to the statuses
+	 * @param path_list Path of the leaves from the JSON Objects
+	 * @return List of Map between String path and Object value
+	 * @throws NumberFormatException
+	 * @throws JSONException
+	 */
 	public List<Map<String, Object>> getValues(JSONArray arr, ArrayList<String> path_list)
 			throws NumberFormatException, JSONException {
 		// json_values = new HashMap<String, Object>();
@@ -109,7 +141,16 @@ public class TwitterBuilder {
 		values.add(current_tweet_id, json_values);
 		return values;
 	}
-
+	/**
+	 * Get the JSON Objects from the Twitter API request statuses and recursively get the path for every leaves of the object,
+	 * for example background_color of the user will be in statuses.user.background_color
+	 *  
+	 * @param obj JSON Objects that will be parsed 
+	 * @param arr JSON Array that will be parsed
+	 * @param previous_key String containing the parents of the current object
+	 * @param all_path Array of String containing all the path for every leaves
+	 * @throws JSONException
+	 */
 	public void recurs_parsingJSON(JSONObject obj, JSONArray arr, String previous_key, ArrayList<String> all_path)
 			throws JSONException {
 		if (obj == null && arr == null) {
@@ -160,6 +201,14 @@ public class TwitterBuilder {
 		}
 
 	}
+	/**
+	 * 
+	 * Get the values, parse them into correct the cast and build the Tweet objects
+	 * 
+	 * @param values List of Map between String path and Object values
+	 * @param session Hibernate Session
+	 * @return List of Objects Tweet
+	 */
 
 	public List<Tweet> createTable(List<Map<String, Object>> values, Session session) {
 		List<Tweet> listTweet = new ArrayList<Tweet>();
@@ -183,9 +232,9 @@ public class TwitterBuilder {
 						value = (Date) format.parse((String) entry.getValue());
 					} catch (ParseException e1) {
 						value = (String) entry.getValue();
-						String value_string = (String)value;
-						value_string = value_string.replaceAll("\\p{So}+", "");
-						value = value_string;
+//						String value_string = (String)value;
+//						value_string = value_string.replaceAll("\\p{So}+", "");
+//						value = value_string;
 					}
 				try {
 					switch (list_entry[1]) {
@@ -222,7 +271,14 @@ public class TwitterBuilder {
 		return listTweet;
 
 	}
-
+	/**
+	 * 
+	 * Top level function, using the provided url to create the list of Tweets that will be send to the frontend
+	 * 
+	 * @param url Query url
+	 * @param session Hibernate Session
+	 * @return List of Tweets
+	 */
 	public List<Tweet> queryAndCreate(String url, Session session) {
 		ArrayList<String> path = new ArrayList<String>();
 		List<Map<String, Object>> values = new ArrayList<Map<String, Object>>();
