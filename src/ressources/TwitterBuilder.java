@@ -184,7 +184,9 @@ public class TwitterBuilder {
 						value = (Date) format.parse((String) entry.getValue());
 					} catch (ParseException e1) {
 						value = (String) entry.getValue();
-
+						String value_string = (String)value;
+						value_string = value_string.replaceAll("\\p{So}+", "");
+						value = value_string;
 					}
 				}
 				else if(entry.getValue() instanceof JSONArray) {
@@ -254,24 +256,27 @@ public class TwitterBuilder {
 	}
 
 	public static void main(String[] args) {
-		try {
-			ArrayList<String> path = new ArrayList<String>();
-			Session session = SFactory.getSession();
-			List<Map<String, Object>> values = new ArrayList<Map<String, Object>>();
-			TwitterBuilder twitterBuilder = new TwitterBuilder();
-			String url = "https://api.twitter.com/1.1/search/tweets.json?q=tugraz";
-			JSONObject result = twitterBuilder.request(url);
-			JSONArray statuses = result.getJSONArray("statuses");
-			for (int i = 0; i < statuses.length(); i++) {
-				JSONObject current_obj = statuses.getJSONObject(i);
-				twitterBuilder.recurs_parsingJSON(current_obj, null, Integer.toString(i), path);
-			}
-			values = twitterBuilder.getValues(statuses, path);
-			twitterBuilder.createTable(values, session);
-			session.close();
-		} catch (Exception e) {
-			System.out.println(e);
-		}
+//		try {
+//			ArrayList<String> path = new ArrayList<String>();
+//			Session session = SFactory.getSession();
+//			List<Map<String, Object>> values = new ArrayList<Map<String, Object>>();
+//			TwitterBuilder twitterBuilder = new TwitterBuilder();
+//			String url = "https://api.twitter.com/1.1/search/tweets.json?q=tugraz";
+//			JSONObject result = twitterBuilder.request(url);
+//			JSONArray statuses = result.getJSONArray("statuses");
+//			for (int i = 0; i < statuses.length(); i++) {
+//				JSONObject current_obj = statuses.getJSONObject(i);
+//				twitterBuilder.recurs_parsingJSON(current_obj, null, Integer.toString(i), path);
+//			}
+//			values = twitterBuilder.getValues(statuses, path);
+//			twitterBuilder.createTable(values, session);
+//			session.close();
+//		} catch (Exception e) {
+//			System.out.println(e);
+//		}
+		String test_reg = "@FeodorPilipenko И мы все так же далеко друг от друга😔";
+		test_reg = test_reg.replaceAll("\\p{So}+","");
+		System.out.println(test_reg);
 	}
 
 }

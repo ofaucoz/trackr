@@ -56,7 +56,7 @@ public class SearchServlet extends HttpServlet implements Servlet {
 			url += "q=" + hashtag;
 		}
 		if(latitude!=null&&longitude!=null&&radius!=null) {
-			url += "geocode=" + latitude + "," + longitude + "," + radius;
+			url += "&geocode=" + latitude + "," + longitude + "," + radius;
 		}
 		TwitterBuilder twitterBuilder = new TwitterBuilder();
 		ObjectMapper objectMapper = new ObjectMapper();
