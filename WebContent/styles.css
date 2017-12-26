@@ -34,6 +34,14 @@ label {
 .filter-purple { background-color: #7C54FB; }
 .filter-red { background-color: #FB6353; }
 
+.attrib-footer {
+	color: #B8B8B8;
+}
+
+.attrib-footer a {
+	color: #787878;
+}
+
 #small-print { font-size: 0.75em; }
 
 canvas {-ms-touch-action: double-tap-zoom;}
