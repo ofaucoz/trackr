@@ -18,12 +18,12 @@ import org.hibernate.Session;
 @Table(name = "tweet")
 public class Tweet {
 	
-	
 	public Tweet(String in_reply_to_status_id_str, String in_reply_to_status_id, Date created_at, String source,
-			Integer retweet_count, String retweeted, String geo, String in_reply_to_screen_name, String is_quote_status,
-			Integer favorite_count, Integer tweet_id, String tweet_text, String place, String lang, Boolean favorited,
-			Boolean possibly_sensitive, String coordinates, Boolean truncated, String contributors, User user, Entities entities) {
+			Integer retweet_count, Boolean retweeted, String geo, String in_reply_to_screen_name, Boolean is_quote_status,
+			Integer favorite_count, Integer id, String tweet_text, String place, String lang, Boolean favorited,
+			Boolean possibly_sensitive, Coordinates coordinates, Boolean truncated, String contributors, User user, Entities entities, String id_str) {
 		super();
+		this.id_str = id_str;
 		this.in_reply_to_status_id_str = in_reply_to_status_id_str;
 		this.in_reply_to_status_id = in_reply_to_status_id;
 		this.created_at = created_at;
@@ -34,7 +34,7 @@ public class Tweet {
 		this.in_reply_to_screen_name = in_reply_to_screen_name;
 		this.is_quote_status = is_quote_status;
 		this.favorite_count = favorite_count;
-		this.tweet_id = tweet_id;
+		this.id = id;
 		this.text = tweet_text;
 		this.place = place;
 		this.lang = lang;
@@ -66,7 +66,7 @@ public class Tweet {
 	private Integer retweet_count;
 
 	@Column(name = "retweeted")
-	private String retweeted;
+	private Boolean retweeted;
 
 	@Column(name = "geo")
 	private String geo;
@@ -75,13 +75,17 @@ public class Tweet {
 	private String in_reply_to_screen_name;
 
 	@Column(name = "is_quote_status")
-	private String is_quote_status;
+	private Boolean is_quote_status;
 
 	@Column(name = "favorite_count")
 	private Integer favorite_count;
 
-	@Column(name = "tweet_id")
-	private Integer tweet_id;
+	@Column(name = "id")
+	private Integer id;
+
+	@Id
+	@Column(name="id_str")
+	private String id_str;
 
 	@Column(name = "tweet_text")
 	private String text;
@@ -98,14 +102,15 @@ public class Tweet {
 	@Column(name = "possibly_sensitive")
 	private Boolean possibly_sensitive;
 
-	@Column(name = "coordinates")
-	private String coordinates;
-
 	@Column(name = "truncated")
 	private Boolean truncated;
 
 	@Column(name = "contributors")
 	private String contributors;
+	
+	@OneToOne
+	@JoinColumn(name="coordinates")
+	private Coordinates coordinates;
 
 	@OneToOne
 	@JoinColumn(name = "user")
@@ -114,11 +119,6 @@ public class Tweet {
 	@OneToOne
 	@JoinColumn(name = "entities")
 	private Entities entities;
-
-	@Id
-	@GeneratedValue(strategy = GenerationType.IDENTITY)
-	@Column(name = "id", unique = true, nullable = false)
-	private Integer id;
 
 	public String getIn_reply_to_status_id_str() {
 		return in_reply_to_status_id_str;
@@ -160,11 +160,11 @@ public class Tweet {
 		this.retweet_count = retweet_count;
 	}
 
-	public String getRetweeted() {
+	public Boolean getRetweeted() {
 		return retweeted;
 	}
 
-	public void setRetweeted(String retweeted) {
+	public void setRetweeted(Boolean retweeted) {
 		this.retweeted = retweeted;
 	}
 
@@ -184,11 +184,11 @@ public class Tweet {
 		this.in_reply_to_screen_name = in_reply_to_screen_name;
 	}
 
-	public String getIs_quote_status() {
+	public Boolean getIs_quote_status() {
 		return is_quote_status;
 	}
 
-	public void setIs_quote_status(String is_quote_status) {
+	public void setIs_quote_status(Boolean is_quote_status) {
 		this.is_quote_status = is_quote_status;
 	}
 
@@ -200,12 +200,12 @@ public class Tweet {
 		this.favorite_count = favorite_count;
 	}
 
-	public Integer getTweet_id() {
-		return tweet_id;
+	public Integer getId() {
+		return id;
 	}
 
-	public void setTweet_id(Integer tweet_id) {
-		this.tweet_id = tweet_id;
+	public void setId(Integer id) {
+		this.id = id;
 	}
 
 	public String getText() {
@@ -248,14 +248,6 @@ public class Tweet {
 		this.possibly_sensitive = possibly_sensitive;
 	}
 
-	public String getCoordinates() {
-		return coordinates;
-	}
-
-	public void setCoordinates(String coordinates) {
-		this.coordinates = coordinates;
-	}
-
 	public Boolean isTruncated() {
 		return truncated;
 	}
@@ -280,14 +272,6 @@ public class Tweet {
 		this.user = user;
 	}
 
-	public Integer getId() {
-		return id;
-	}
-
-	public void setId(Integer id) {
-		this.id = id;
-	}
-	
 	public Entities getEntities() {
 		return entities;
 	}
@@ -298,21 +282,35 @@ public class Tweet {
 	
 
 	public static void main(String[] args) {
-		Session session = SFactory.getSession();		
-		Entities e = new Entities("test", "test", "test", "test");
-		User u = new User(0, 2, "test",2,"test",true,2,"test",new Date(2013,12,1,1,1), true, "test", true, "test", "test", true,
-				"test", "test", true,"test", "test", true, "test","test", "test", true, "test","test", 2, true,2, true, true, true,
-				"test", "test", "test", true);
-		Tweet t = new Tweet("test", "test", new Date(2013,12,1,1,1), "test",2, "test", "test", "test","test",4, 2, "test", "test", "test", true,
-				true, "test", true, "test", u, e);
-		session.beginTransaction();
-		session.saveOrUpdate(e);
-		session.saveOrUpdate(u);
-		session.saveOrUpdate(t);
-		session.getTransaction().commit();
-		System.out.println(t.getFavorite_count());
-		session.close();
 }
+
+	public String getId_str() {
+		return id_str;
+	}
+
+	public void setId_str(String id_str) {
+		this.id_str = id_str;
+	}
+
+	public Boolean getFavorited() {
+		return favorited;
+	}
+
+	public Boolean getPossibly_sensitive() {
+		return possibly_sensitive;
+	}
+
+	public Boolean getTruncated() {
+		return truncated;
+	}
+
+	public Coordinates getCoordinates() {
+		return coordinates;
+	}
+
+	public void setCoordinates(Coordinates coordinates) {
+		this.coordinates = coordinates;
+	}
 
 
 }

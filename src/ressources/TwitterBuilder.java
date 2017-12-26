@@ -167,6 +167,7 @@ public class TwitterBuilder {
 			Entities e = new Entities();
 			User u = new User();
 			Tweet t = new Tweet();
+			Coordinates c = new Coordinates();
 			Object value = new Object();
 			Map<String, Object> json_values = values.get(i);
 			DateFormat format = new SimpleDateFormat("EEE MMM d hh:mm:ss ZZZZZ YYYY", Locale.ENGLISH);
@@ -178,7 +179,7 @@ public class TwitterBuilder {
 					value = (Boolean) entry.getValue();
 				} else if (entry.getValue() instanceof Integer) {
 					value = (int) entry.getValue();
-				} else if (entry.getValue() instanceof String)
+				} else if (entry.getValue() instanceof String) {
 					try {
 						value = (Date) format.parse((String) entry.getValue());
 					} catch (ParseException e1) {
@@ -187,6 +188,10 @@ public class TwitterBuilder {
 						value_string = value_string.replaceAll("\\p{So}+", "");
 						value = value_string;
 					}
+				}
+				else if(entry.getValue() instanceof JSONArray) {
+					value = (String) entry.getValue().toString();
+				}
 				try {
 					switch (list_entry[1]) {
 					case "user":
@@ -199,6 +204,12 @@ public class TwitterBuilder {
 								value.getClass());
 						method.invoke(e, value);
 						break;
+					case "coordinates":
+						method = c.getClass().getMethod("set" + StringUtils.capitalize(list_entry[2]),
+								value.getClass());
+						System.out.println("value : " + entry.getValue());
+						System.out.println("class : " + entry.getValue().getClass());
+						method.invoke(c, value);
 					default:
 						if (!list_entry[1].contains("retweeted_status")) {
 							method = t.getClass().getMethod("set" + StringUtils.capitalize(list_entry[1]),
@@ -208,14 +219,17 @@ public class TwitterBuilder {
 						break;
 					}
 				} catch (Exception exc) {
+					System.out.println(exc);
 				}
 			}
 			t.setUser(u);
 			t.setEntities(e);
+			t.setCoordinates(c);
 			session.getTransaction().begin();
-			session.save(u);
-			session.save(e);
-			session.save(t);
+			session.saveOrUpdate(u);
+			session.saveOrUpdate(e);
+			session.saveOrUpdate(c);
+			session.saveOrUpdate(t);
 			session.getTransaction().commit();
 			listTweet.add(t);
 		}

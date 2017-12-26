@@ -16,7 +16,7 @@ import javax.persistence.TemporalType;
 @Table(name = "user")
 public class User {
 	
-	public User(Integer utc_offset, Integer friends_count, String profile_image_url_https, Integer listed_count,
+	public User(Integer id, Integer utc_offset, Integer friends_count, String profile_image_url_https, Integer listed_count,
 			String profile_background_image_url, Boolean default_profile_image, Integer favourites_count,
 			String description, Date created_at, Boolean is_translator, String profile_background_image_url_https,
 			Boolean is_protected, String screen_name, String id_str, Boolean geo_enabled,
@@ -27,6 +27,7 @@ public class User {
 			Integer followers_count, Boolean profile_use_background_image, Boolean default_profile, Boolean following,
 			String name, String location, String profile_sidebar_fill_color, Boolean notifications) {
 		super();
+		this.id = id;
 		this.utc_offset = utc_offset;
 		this.friends_count = friends_count;
 		this.profile_image_url_https = profile_image_url_https;
@@ -68,11 +69,6 @@ public class User {
 	
 	public User() {}
 
-	@Id
-	@GeneratedValue(strategy = GenerationType.IDENTITY)
-	@Column(name = "id", unique = true, nullable = false)
-	private Integer id;
-	
 	@Column(name = "utc_offset")
 	private Integer utc_offset;
 
@@ -113,6 +109,7 @@ public class User {
 	@Column(name = "screen_name")
 	private String screen_name;
 	
+	@Id
 	@Column(name = "id_str")
 	private String id_str;
 	
@@ -173,6 +170,9 @@ public class User {
 	@Column(name = "following")
 	private Boolean following;
 	
+	@Column(name="id")
+	private Integer id;
+	
 	@Column(name = "name")
 	private String name;
 	
@@ -184,14 +184,6 @@ public class User {
 	
 	@Column(name = "notifications")
 	private Boolean notifications;
-
-	public Integer getId() {
-		return id;
-	}
-
-	public void setId(Integer id) {
-		this.id = id;
-	}
 
 	public Integer getUtc_offset() {
 		return utc_offset;
@@ -487,6 +479,66 @@ public class User {
 
 	public void setNotifications(Boolean notifications) {
 		this.notifications = notifications;
+	}
+
+	public Boolean getIs_protected() {
+		return is_protected;
+	}
+
+	public void setIs_protected(Boolean is_protected) {
+		this.is_protected = is_protected;
+	}
+
+	public Integer getId() {
+		return id;
+	}
+
+	public void setId(Integer id) {
+		this.id = id;
+	}
+
+	public Boolean getDefault_profile_image() {
+		return default_profile_image;
+	}
+
+	public Boolean getIs_translator() {
+		return is_translator;
+	}
+
+	public Boolean getGeo_enabled() {
+		return geo_enabled;
+	}
+
+	public Boolean getHas_extended_profile() {
+		return has_extended_profile;
+	}
+
+	public Boolean getVerified() {
+		return verified;
+	}
+
+	public Boolean getContributors_enabled() {
+		return contributors_enabled;
+	}
+
+	public Boolean getFollow_request_sent() {
+		return follow_request_sent;
+	}
+
+	public Boolean getProfile_use_background_image() {
+		return profile_use_background_image;
+	}
+
+	public Boolean getDefault_profile() {
+		return default_profile;
+	}
+
+	public Boolean getFollowing() {
+		return following;
+	}
+
+	public Boolean getNotifications() {
+		return notifications;
 	}
 
 }
