@@ -27,5 +27,6 @@
  <mapping class="ressources.User"/> 
   <mapping class="ressources.Tweet"/>  
   <mapping class="ressources.Entities"/>  
+  <mapping class="ressources.Coordinates"/>
 </session-factory>
 </hibernate-configuration>

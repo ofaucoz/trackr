@@ -13,13 +13,15 @@ CREATE TABLE IF NOT EXISTS entities(
   symbols TEXT
 );
 
-CREATE TABLE IF NOT EXISTS extended_entities(
+
+CREATE TABLE IF NOT EXISTS coordinates(
   id serial,
-  media TEXT
+  type TEXT,
+  coordinates TEXT,
+  PRIMARY KEY(id)
 );
 
 CREATE TABLE IF NOT EXISTS user(
-  id serial,
   utc_offset INT,
   friends_count INT,
   profile_image_url_https TEXT,
@@ -33,7 +35,8 @@ CREATE TABLE IF NOT EXISTS user(
   profile_background_image_url_https TEXT,
   protected BOOLEAN,
   screen_name TEXT,
-  id_str TEXT,
+  id INT,
+  id_str VARCHAR(100),
   geo_enabled BOOLEAN,
   profile_background_color TEXT,
   lang TEXT,
@@ -53,37 +56,38 @@ CREATE TABLE IF NOT EXISTS user(
   profile_use_background_image BOOLEAN,
   default_profile BOOLEAN,
   following BOOLEAN,  
-  name TEXT,
+  name VARCHAR(100),
   location TEXT,
   profile_sidebar_fill_color TEXT,
   notifications BOOLEAN,
-  PRIMARY KEY(id)
+  PRIMARY KEY(id_str)
 );
 
 CREATE TABLE IF NOT EXISTS tweet(
-  id serial,
   in_reply_to_status_id_str TEXT,
   in_reply_to_status_id TEXT,
   created_at DATETIME,
   source TEXT,
   retweet_count INT,
-  retweeted TEXT,
+  retweeted BOOLEAN,
+  id_str VARCHAR(100),
   geo TEXT,
   in_reply_to_screen_name TEXT,
-  is_quote_status TEXT,
+  is_quote_status BOOLEAN,
   favorite_count INT,
-  tweet_id INT,
+  id INT, # update : new ID
   tweet_text VARCHAR(180),
   place TEXT,
   lang TEXT,
   favorited BOOLEAN,
   possibly_sensitive BOOLEAN,
-  coordinates TEXT,
   truncated BOOLEAN,
   contributors TEXT,
-  user BIGINT UNSIGNED,
+  user VARCHAR(100),
   entities BIGINT UNSIGNED,
+  coordinates BIGINT UNSIGNED,
   FOREIGN KEY(entities) REFERENCES entities(id),
-  FOREIGN KEY(user) REFERENCES user(id),
-  PRIMARY KEY(id)
+  FOREIGN KEY(user) REFERENCES user(id_str),
+  FOREIGN KEY(coordinates) REFERENCES coordinates(id),
+  PRIMARY KEY(id_str)
 );

@@ -36,8 +36,6 @@ import oauth.signpost.exception.OAuthCommunicationException;
 import oauth.signpost.exception.OAuthExpectationFailedException;
 import oauth.signpost.exception.OAuthMessageSignerException;
 
-import com.vdurmont.emoji.EmojiParser;
-
 public class TwitterBuilder {
 
 	private String consumerKey;
@@ -169,6 +167,7 @@ public class TwitterBuilder {
 			Entities e = new Entities();
 			User u = new User();
 			Tweet t = new Tweet();
+			Coordinates c = new Coordinates();
 			Object value = new Object();
 			Map<String, Object> json_values = values.get(i);
 			DateFormat format = new SimpleDateFormat("EEE MMM d hh:mm:ss ZZZZZ YYYY", Locale.ENGLISH);
@@ -180,14 +179,17 @@ public class TwitterBuilder {
 					value = (Boolean) entry.getValue();
 				} else if (entry.getValue() instanceof Integer) {
 					value = (int) entry.getValue();
-				} else if (entry.getValue() instanceof String)
+				} else if (entry.getValue() instanceof String) {
 					try {
 						value = (Date) format.parse((String) entry.getValue());
 					} catch (ParseException e1) {
 						value = (String) entry.getValue();
-						value = EmojiParser.removeAllEmojis((String) value);
-						
+
 					}
+				}
+				else if(entry.getValue() instanceof JSONArray) {
+					value = (String) entry.getValue().toString();
+				}
 				try {
 					switch (list_entry[1]) {
 					case "user":
@@ -200,6 +202,12 @@ public class TwitterBuilder {
 								value.getClass());
 						method.invoke(e, value);
 						break;
+					case "coordinates":
+						method = c.getClass().getMethod("set" + StringUtils.capitalize(list_entry[2]),
+								value.getClass());
+						System.out.println("value : " + entry.getValue());
+						System.out.println("class : " + entry.getValue().getClass());
+						method.invoke(c, value);
 					default:
 						if (!list_entry[1].contains("retweeted_status")) {
 							method = t.getClass().getMethod("set" + StringUtils.capitalize(list_entry[1]),
@@ -209,23 +217,19 @@ public class TwitterBuilder {
 						break;
 					}
 				} catch (Exception exc) {
+					System.out.println(exc);
 				}
 			}
 			t.setUser(u);
 			t.setEntities(e);
+			t.setCoordinates(c);
 			session.getTransaction().begin();
-			try {
-				session.save(u);
-				session.save(e);
-				session.save(t);
-				session.getTransaction().commit();
-				listTweet.add(t);
-			}
-			//there are some emojis unhandled by EmojiParser - these cause an exception in the database - so skip the tweet
-			catch(GenericJDBCException exception) {
-				System.out.println(exception.getStackTrace());
-				session.getTransaction().rollback();
-			}
+			session.saveOrUpdate(u);
+			session.saveOrUpdate(e);
+			session.saveOrUpdate(c);
+			session.saveOrUpdate(t);
+			session.getTransaction().commit();
+			listTweet.add(t);
 		}
 		return listTweet;
 
@@ -248,7 +252,7 @@ public class TwitterBuilder {
 		}
 		return this.createTable(values, session);
 	}
-	
+
 	public static void main(String[] args) {
 		try {
 			ArrayList<String> path = new ArrayList<String>();
