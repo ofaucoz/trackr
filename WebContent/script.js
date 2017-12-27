@@ -17,6 +17,8 @@ var searchLongitude;
 var userLocationSet;
 var resultCount;
 var debugMode = false;	//set this to false to disable hard-coded JSON "response" from "server"
+var circleSelectedNum = -1; //Select which circles to modify with canvas
+var cuantityCircles = 0; //How many circles are in the map (for canvas)
 
 // Map Themes
 // ==========
@@ -35,7 +37,7 @@ var styles = {"Trackr Classic" : defaultTheme, "Assassins Creed" : assassinsThem
 
 //initialises global map variables
 function makeMap() {
-	
+
 	map = new google.maps.Map(document.getElementById("map"), {
 		center: defaultLocation,
 		zoom: 10,
@@ -58,19 +60,20 @@ function makeMap() {
 	bounds = new google.maps.LatLngBounds();
 	userLocationSet = false;
 	resultCount = 0;
-	
+
 }
 
 function resize() {
 	//CanvasLayer requires this definition
 }
 
-//this draws our HTML5 Canvas map overlay
+//CANVAS
+//1. This draws our HTML5 Canvas map overlay
 function update() {
 
 	context.clearRect(0, 0, canvasLayer.canvas.width, canvasLayer.canvas.height);	//clears the entire canvas. Everything must be redrawn below
 	context.fillStyle = 'rgba(0, 0, 255, 0.3)';										//blue with 70% transparency
-	
+
 	//NOTE: this projection section needs checking
 	var mapProjection = map.getProjection();
 	context.setTransform(1, 0, 0, 1, 0, 0); 										//reset transform
@@ -79,15 +82,63 @@ function update() {
 	var offset = mapProjection.fromLatLngToPoint(canvasLayer.getTopLeft());
 	context.translate(-offset.x, -offset.y);
 	//end projection section
-	
+
+	//draw circles
 	for(var i=0; i < circles.length; i++){
 		var worldPoint = mapProjection.fromLatLngToPoint(circles[i].center);
 		context.beginPath();
 		context.arc(worldPoint.x, worldPoint.y, circles[i].radius,0,2*Math.PI);
 		context.fill();
+		if (cuantityCircles < circles.length) { //if there is any new cercle, select it to increase/decrease its radius by default
+			circleSelectedNum = circles.length-1;
+			cuantityCircles = circles.length;
+		}
 	}
-	
 }
+
+//2. This part select the circle that is going to be increased/decreased if there is a market selected.
+function selectCircle(marker) {
+	 for(var i=0; i<markers.length; i++){
+		 if(marker.position === markers[i].position){
+			 circleSelectedNum = i; //Porque ya tenemos tres markers puestos (que borraremos supongo)
+			 break;
+		 }else{
+			 circleSelectedNum = -1;
+		 }
+	 }
+}
+
+//3. This part change the radius when any button is clicked
+//Note: this following part maybe should be compact?
+	//Increase the cercle selected or the last cercle done
+ function increaseRadius() {
+		 circles[circleSelectedNum].radius *=1.2;
+	 update();
+ }
+
+ //Decrease the cercle selected or the last cercle done
+ function decreaseRadius() {
+		 circles[circleSelectedNum].radius *=0.8;
+	 update();
+ }
+
+	//Increase all the cercle
+ function allIncreased() {
+		for(var i=0; i < circles.length; i++){
+			circles[i].radius*=1.2;
+		}
+	update();
+ }
+
+	//Decrease all the cercle
+ function allDecreased() {
+		 for(var i=0; i < circles.length; i++){
+			 circles[i].radius*=0.8;
+		 }
+	 update();
+ }
+//CANVAS PART ENDS HERE
+
 
 function updateMapStyle() {
 	map.setOptions( { styles: styles[document.getElementById("map_style").value] } );
@@ -95,9 +146,9 @@ function updateMapStyle() {
 
 //TODO: this should also clear all user input in form fields
 function resetMap(){
-	
+
 	$('#reset').popover('show');
-	
+
 	document.getElementById('reset_confirm').addEventListener('click', function() {
 		$('#reset').popover('hide');
 		map.setCenter(defaultLocation);
@@ -107,13 +158,14 @@ function resetMap(){
 		}
 		markers = [];
 		circles = [];
+		cuantityCircles = 0;
 		update();						//redraw canvas
 	});
-	
+
 	document.getElementById('reset_cancel').addEventListener('click', function() {
 		$('#reset').popover('hide');
 	});
-	
+
 	//TODO: we need to clear all user input in form fields but it's probably best to use HTML5 form reset button
 	//document.getElementById('hashtag').value = '';
 	//document.getElementById('search_address').value = '';
@@ -182,7 +234,7 @@ function populateInfoWindow(marker, infowindow) {
 
 
 //TODO: if this causes problems here move it to bottom of script
-window.onload = function () {	
+window.onload = function () {
 	//hide tweet count and graphs before we have tweet results
 	document.getElementById('show-on-results').style.display = 'none';
 	//assign click event listeners
@@ -195,13 +247,25 @@ window.onload = function () {
 	document.getElementById('reset').addEventListener('click', function() {
 		resetMap();
 	});
+	document.getElementById('increase').addEventListener('click', function() {
+		increaseRadius();
+	});
+	document.getElementById('decrease').addEventListener('click', function() {
+		decreaseRadius();
+	});
+	document.getElementById('increaseAll').addEventListener('click', function() {
+		allIncreased();
+	});
+	document.getElementById('decreaseAll').addEventListener('click', function() {
+		allDecreased();
+	});
 	//add address autocomplete, get coords automatically on address change
 	var autocomplete = new google.maps.places.Autocomplete(document.getElementById('search_address'));
 	google.maps.event.addListener(autocomplete, 'place_changed', function() {
 		searchLatitude = autocomplete.getPlace().geometry.location.lat();
 		searchLongitude = autocomplete.getPlace().geometry.location.lng();
 	});
-	
+
 	//fill map styles select element from styles array
 	document.getElementById("map_style").innerHTML = Object.keys(styles).map(function(styleName, styleJSON) {
 		return '<option value="'+styleName+'">'+styleName+'</option>'; })
@@ -210,7 +274,7 @@ window.onload = function () {
 	var currentDate = new Date(Date.now());
 	var minDate = new Date(new Date() - 86400000 * 7).toISOString().split('T')[0]; //7 days before current date
 	currentDate = currentDate.toISOString().split('T')[0];
-	document.getElementById("until_date").setAttribute("max", currentDate);	
+	document.getElementById("until_date").setAttribute("max", currentDate);
 	document.getElementById("until_date").setAttribute("min", minDate);
 	document.getElementById("overlayButton").onclick = function() {
 		document.getElementById("overlayButtonTab").classList.add("active");
@@ -251,14 +315,14 @@ function showErrorPopup(errorMsg){
 // ===========
 
 function searchUserCurrentLocation() {
-	
+
 	if(navigator.geolocation) {
 			navigator.geolocation.getCurrentPosition(search, handleGeolocationError);
 	}
 	else {
 			alert("Your browser doesn't support geolocation, sorry!");
 	}
-	
+
 	function search(position) {
 		searchLatitude = position.coords.latitude;
 		searchLongitude = position.coords.longitude;
@@ -270,11 +334,11 @@ function searchUserCurrentLocation() {
 		userLocationSet = true; 						 //this means we will add a marker in processJSONResponse
 		document.getElementById('search_address').value = searchLatitude.toString() + ', ' + searchLongitude.toString();
 	}
-	
+
 	function handleGeolocationError() {
 		alert("Oops, we couldn't find you - please check if you've granted us permission to access your location.");
 	}
-	
+
 	return false; //stops link reloading page?
 }
 
@@ -287,8 +351,8 @@ function search() {
 		$('#search').popover('hide');
 		var query = [];
 		if(searchLatitude !== undefined && searchLongitude !== undefined) {
-			query.push('latitude=' + searchLatitude + '&'); 
-			query.push('longitude=' + searchLongitude + '&'); 
+			query.push('latitude=' + searchLatitude + '&');
+			query.push('longitude=' + searchLongitude + '&');
 			var radiusForm = document.getElementById('search_radius');
 			var radius = radiusForm.options[radiusForm.selectedIndex].text;  //get currently selected label
 			radius = radius.replace(/ /g,''); //remove space
@@ -304,18 +368,18 @@ function search() {
 		if(query.charAt(query.length - 1) == '&'){  //remove trailing &s
 			query = query.substr(0, query.length - 2);
 		}
-		
+
 		if(window.XMLHttpRequest){
 			var request = new XMLHttpRequest();
 			request.onreadystatechange = processJSONResponse;
 			request.open('GET', 'http://localhost:8080/trackr/search?' + query, true);
 			request.send(null);
-			//updateHistory('null', query);	            //TODO: fix HTML5 history usage - this doesn't update page			
+			//updateHistory('null', query);	            //TODO: fix HTML5 history usage - this doesn't update page
 		}
 		else{
 			console.log("Sorry, your browser doesn't support AJAX - please try a more up-to-date browser!");
 			//TODO: alternatives here?
-		} 
+		}
 	}
 }
 
@@ -325,7 +389,7 @@ function sanitizeUserInput(input) {
 	//convert all whitespace chars to single space and remove special characters
 	//important for security as we use their input in the URL
 	input = input.replace(/[`~!@#$%^&*§()_|+\-=?;:'",.<>\{\}\[\]\\\/]/gi, '');
-	return input.replace(/\s\s*/g, '&nbsp;');	
+	return input.replace(/\s\s*/g, '&nbsp;');
 }
 
 
@@ -367,14 +431,14 @@ function processJSONResponse(debugTweets){
 //See https://developer.twitter.com/en/docs/tweets/data-dictionary/overview/tweet-object for details of tweet properties
 function processTweet(tweet) {
 	//TODO: THIS IS DISABLED, FIX AND RE-ENABLE
-	if(false && tweet.coordinates){	
+	if(false && tweet.coordinates){
 		var coords = tweet.coordinates.coordinates;    //this looks bizarre I know but it's right
 		var pos = {
 			lat: coords[0],
 			lng: coords[1],
 		};
 		addMarkerToMap(new google.maps.LatLng(pos), tweet.text);
-		incrementResultCount(); 
+		incrementResultCount();
 	}
 	//else if(tweet.place){
 		//TODO
@@ -428,33 +492,8 @@ function resetResultCount(){
 /* BACKUP CODE
 
 map.setCenter(results[0].geometry.location);
-				addMarkerToMap(results[0].geometry.location, results[0].formatted_address); 
+				addMarkerToMap(results[0].geometry.location, results[0].formatted_address);
 				var circleRadius = document.getElementById('search_radius').value;		//defaults to first option (0.01) if none selected
 				circles.push({center: results[0].geometry.location, radius: circleRadius});
 				update();	//redraw map overlay
 */
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
