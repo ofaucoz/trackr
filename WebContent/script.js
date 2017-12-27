@@ -96,11 +96,11 @@ function update() {
 	}
 }
 
-//2. This part select the circle that is going to be increased/decreased if there is a market selected.
+//2. This part select the circle that is going to be increased/decreased if there is a marker selected.
 function selectCircle(marker) {
 	 for(var i=0; i<markers.length; i++){
 		 if(marker.position === markers[i].position){
-			 circleSelectedNum = i; //Porque ya tenemos tres markers puestos (que borraremos supongo)
+			 circleSelectedNum = i;
 			 break;
 		 }else{
 			 circleSelectedNum = -1;
@@ -109,7 +109,8 @@ function selectCircle(marker) {
 }
 
 //3. This part change the radius when any button is clicked
-//Note: this following part maybe should be compact?
+//Note: this following part maybe can be compact?
+
 	//Increase the cercle selected or the last cercle done
  function increaseRadius() {
 		 circles[circleSelectedNum].radius *=1.2;
