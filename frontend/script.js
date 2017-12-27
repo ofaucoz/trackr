@@ -12,6 +12,8 @@ var defaultIcon;
 var highlightedIcon;
 var bounds;
 var infoWindow;
+var circleSelectedNum = -1; //Select with circles to modify with canvas
+var cuantityCircles = 0; //How many circles are in the map (for canvas)
 
 /* map themes
 =============
@@ -27,7 +29,7 @@ var styles = {"Trackr Classic" : defaultTheme, "Assassins Creed" : assassinsThem
 
 //initialises global map variables
 function makeMap() {
-	
+
 	map = new google.maps.Map(document.getElementById("map"), {
 		center: defaultLocation,
 		zoom: 10,
@@ -48,17 +50,17 @@ function makeMap() {
 	highlightedIcon = makeMarkerIcon('FFFF24');
 	infoWindow = new google.maps.InfoWindow();
 	bounds = new google.maps.LatLngBounds();
-	
+
 	//link up to database to get twitter data goes here!!!! and replaces var data
 	var data = [
         {title: 'Alte Technik', location: {lat: 47.068971, lng: 15.450100}},
         {title: 'Kopernikusgasse', location: {lat: 47.064993, lng: 15.450765}},
         {title: 'Inffeldgasse', location: {lat: 47.058339, lng: 15.457897}}
     ];
-	
+
 	for (var i = 0; i < data.length; i++) {
 		addMarkerToMap(data[i].location, data[i].title);
-	}	
+	}
 }
 
 function makeMarkerIcon(markerColor){
@@ -86,16 +88,15 @@ function populateInfoWindow(marker, infowindow) {
     }
 }
 
-function resize() {
-	//TODO
-}
 
-//this draws our HTML5 Canvas map overlay
+//CANVAS PART STARTS HERE
+
+//this draws our HTML5 Canvas map overlay every time
 function update() {
 
 	context.clearRect(0, 0, canvasLayer.canvas.width, canvasLayer.canvas.height);	//clears the entire canvas. Everything must be redrawn below
 	context.fillStyle = 'rgba(0, 0, 255, 0.3)';										//blue with 70% transparency
-	
+
 	//NOTE: this projection section needs checking
 	var mapProjection = map.getProjection();
 	context.setTransform(1, 0, 0, 1, 0, 0); 										//reset transform
@@ -104,25 +105,71 @@ function update() {
 	var offset = mapProjection.fromLatLngToPoint(canvasLayer.getTopLeft());
 	context.translate(-offset.x, -offset.y);
 	//end projection section
-	
+
+	//create cercles
 	for(var i=0; i < circles.length; i++){
 		var worldPoint = mapProjection.fromLatLngToPoint(circles[i].center);
 		context.beginPath();
 		context.arc(worldPoint.x, worldPoint.y, circles[i].radius,0,2*Math.PI);
 		context.fill();
+		if (cuantityCircles < circles.length) { //if there is any new cercle, select it.
+			circleSelectedNum = circles.length-1;
+			cuantityCircles = circles.length;
+		}
 	}
-	
 }
 
+// Select the circle that is going to be increased/decreased if there is a market selected.
+function selectCircle(marker) {
+	 for(var i=0; i<markers.length; i++){
+		 if(marker.position === markers[i].position){
+			 circleSelectedNum = i; //Porque ya tenemos tres markers puestos (que borraremos supongo)
+			 break;
+		 }else{
+			 circleSelectedNum = -1;
+		 }
+	 }
+}
+//Note: this following part maybe should be compact?
+	//Increase the cercle selected or the last cercle done
+ function increaseRadius() {
+		 circles[circleSelectedNum].radius *=1.2;
+	 update();
+ }
+
+ //Decrease the cercle selected or the last cercle done
+ function decreaseRadius() {
+		 circles[circleSelectedNum].radius *=0.8;
+	 update();
+ }
+
+	//Increase all the cercle
+ function allIncreased() {
+		for(var i=0; i < circles.length; i++){
+			circles[i].radius*=1.2;
+		}
+	update();
+ }
+
+	//Decrease all the cercle
+ function allDecreased() {
+		 for(var i=0; i < circles.length; i++){
+			 circles[i].radius*=0.8;
+		 }
+	 update();
+ }
+//CANVAS PART ENDS HERE
+
+
 function searchUserCurrentLocation() {
-	
+
 	if(navigator.geolocation) {
 			navigator.geolocation.getCurrentPosition(search, handleGeolocationError);
 	}
 	else {
 			alert("Your browser doesn't support geolocation, sorry!");
 	}
-	
+
 	function search(position) {
 		var pos = {
               lat: position.coords.latitude,
@@ -135,11 +182,11 @@ function searchUserCurrentLocation() {
 		circles.push({center: defaultLocation, radius: circleRadius});
 		update();	//redraw map overlay
 	}
-	
+
 	function handleGeolocationError() {
 		alert("Oops, we couldn't find you - please check if you've granted us permission to access your location.");
 	}
-	
+
 	return false; //stops link reloading page?
 }
 
@@ -154,13 +201,13 @@ function searchUserInputLocation() {
 			if (status === 'OK') {
 				if (results[0]) {
 					map.setCenter(results[0].geometry.location);
-					addMarkerToMap(results[0].geometry.location, results[0].formatted_address); 
+					addMarkerToMap(results[0].geometry.location, results[0].formatted_address);
 					var circleRadius = document.getElementById('search_radius').value;		//defaults to first option (0.01) if none selected
 					circles.push({center: results[0].geometry.location, radius: circleRadius});
 					update();	//redraw map overlay
 				}
 			}
-			else if (status == 'ZERO_RESULTS') {	
+			else if (status == 'ZERO_RESULTS') {
 				alert('The address could not be found.');
 			}
 			else if (status == 'OVER_QUERY_LIMIT') {
@@ -169,14 +216,14 @@ function searchUserInputLocation() {
 			else {	// server error, request timed out, etc
 				alert ('Search failed due to the following error: ' + status + '. Please check your internet connection.');
 			}
-		});	
-	}	
+		});
+	}
 }
 
 function resetMap(){
-	
+
 	$('#reset').popover('show');
-	
+
 	document.getElementById('reset_confirm').addEventListener('click', function() {
 		$('#reset').popover('hide');
 		map.setCenter(defaultLocation);
@@ -188,11 +235,11 @@ function resetMap(){
 		circles = [];
 		update();						//redraw canvas
 	});
-	
+
 	document.getElementById('reset_cancel').addEventListener('click', function() {
 		$('#reset').popover('hide');
 	});
-	
+
 }
 
 document.addEventListener('DOMContentLoaded', makeMap, false);   //Do I actually need this?
@@ -206,6 +253,18 @@ window.onload = function () {
 	});
 	document.getElementById('reset').addEventListener('click', function() {
 		resetMap();
+	});
+	document.getElementById('increase').addEventListener('click', function() {
+		increaseRadius();
+	});
+	document.getElementById('decrease').addEventListener('click', function() {
+		decreaseRadius();
+	});
+	document.getElementById('increaseAll').addEventListener('click', function() {
+		allIncreased();
+	});
+	document.getElementById('decreaseAll').addEventListener('click', function() {
+		allDecreased();
 	});
 	var autocomplete = new google.maps.places.Autocomplete(document.getElementById('search_address'));
 	document.getElementById("map_style").innerHTML = Object.keys(styles).map(function(styleName, styleJSON) {
@@ -251,7 +310,7 @@ var whyDoesThisFail = {"text":"RT @PostGradProblem: In preparation for the NFL l
 //console.log(whyDoesThisFail.text);
 //var request = new XMLHttpRequest();
 //request.open("GET", "URLgoesHere", true);
-//callback:  
+//callback:
 
 //API requests to our server:
 
@@ -284,6 +343,7 @@ function addMarkerToMap(location, markerTitle){
     });
     marker.addListener('mouseout', function() {
 		this.setIcon(defaultIcon);
+		selectCircle(this);
     });
 	//Open an infowindow when clicked which shows the tweet
     marker.addListener('click', function() {
@@ -312,7 +372,7 @@ function processJSONTweet(jsonTweet){
 				console.log("Error geocoding JSON user location");
 				return -1;
 			}
-		});	
+		});
 	}
 	else {
 		console.log("JSON contained no tweet or user location");
@@ -323,15 +383,11 @@ function processJSONTweet(jsonTweet){
 
 //check browser supports HTML5 History API
 if(!!(window.history && history.pushState)){
-	
+
 	//history.pushState({}, null, '#/hashtag/searchEntry') //add new history entry and change to that URL without reloading page
 	//history.replaceState(state, null, url) //replace current history entry
 	//remember these URLs don't exist so user can't refresh page or share URL - need to fix this somehow??
-	
+
 }
 
 //TODO: fix links so not using # href: https://stackoverflow.com/questions/134845/which-href-value-should-i-use-for-javascript-links-or-javascriptvoid0?rq=1
-
-
-
-

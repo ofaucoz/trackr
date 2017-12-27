@@ -16,7 +16,6 @@
 	<script type="text/javascript" src="https://maps.googleapis.com/maps/api/js?key=AIzaSyCLIsyZMyuH5tT6-SnnoPGD8IRX53fVBFs&libraries=places"</script>
 	<script type="text/javascript" src="CanvasLayerOptions.js"></script>
 	<script type="text/javascript" src="CanvasLayer.js"></script>
-  <script type="text/javascript" src="Canvas.js"></script>
 	<script type="text/javascript" src="script.js"></script>
 
 </head>
@@ -87,6 +86,10 @@
                   <option value='0.5'>50 km</option>
                 </select>
               </label>
+							<input id="increase" type="button" value="+" onclick="increaseRadius();" />
+							<input id="decrease" type="button" value="-" onclick="decreaseRadius();" />
+							<input id="increaseAll" type="button" value="+ all" onclick="allIncreased();" />
+							<input id="decreaseAll" type="button" value="- all" onclick="allDecreased();" />
             </p>
 			<h4>
               Time Range
