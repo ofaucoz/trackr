@@ -1,6 +1,6 @@
 <!doctype html>
 
-<html lang="en" onclick="parent.hideOverlay()">
+<html lang="en">
 
 <head>
 
@@ -31,7 +31,8 @@
 					track and display them in the Google Map. The filtered tweets appear as markers inside the selected
 					region, colored in blue. By clicking one of the markers, information about the tweet is shown:
 					tweet text, Tweter's name and picture...</br></br>
-					The chart under the menu shows...
+					In addition, the chart under the menu is a time line chart that shows the tweets per hour about the
+					desired hashtag in the defined area.
 					//I will put a different photo (or photos) that shows the performance of the final app
 				</li>
 				<li id="image" align = "left"><img src = "mapimage.png" alt="app map image"></li>
@@ -40,23 +41,25 @@
 			<ul>
 				<li id="image" align = "right"><img src = "Architecture.png" alt="app map image"></li>
 				<li id="text">The app follows the MVC (Model-View-Controller) design pattern,
-					ensuring that the Tweet data (MySQL database), control (Wildfly +
-					Hibernate server stack) and user interface (HTML5, CSS and Javascript)
-					are separated and commmunicate via clear
-					APIs. The core HTML5 feature used is Canvas (to draw the selected areas
+					ensuring that the model (MySQL database, with Tweet data), the controller (Wildfly +
+					Hibernate server stack) and the view (HTML5, CSS and Javascript)
+					are separated and commmunicate via clear APIs. <br><br>
+					The core HTML5 feature used is Canvas (to draw the selected areas
 					onto the map) and the app also make use of the geolocation
 					API and semantic markup.
 				</li>
 			</ul>
 			<ul>
 				<li id="text"> <b>Back end </b> <br><br>
-					The server-side has been developed with Java language and it is composed by a tweet database and
-					a control. <br><br>
-					The tweet database has been implemented with MySQL Database and it is in charge of store the data
-					from recent searchers (in order to reduce the number of API calls). This data contains different tweet
-					information (text, hashtag, location, user's information...) that is needed for running the app and
-					information of interesting for the user. <br><br>
-					// I need Orphee to help me
+					The back end goal in this project is to take the tweets from the twitter api,
+					instantiate it as an object and send it to both front end and database (for further analysis
+					and to retrieve previous tweets for users). <br><br>
+					To do so, we have the ressources that are made to replicate the JSON object from the twitter api response a
+					TwitterBuilder, that will basically handle everything from querying to create objects and then putting
+					it inside the database, and the servlet class used to make the connection between the front end and the
+					back end. <br><br>
+					For the back end setup, has been used Wildfly (as a server) with Hibernate (the persistence)
+					and MySQL database. The whole back end is written in Java.
 				</li>
 				<li id="text"> <b> Front end </b> <br><br>
 					The front end has been developed has a single-page interface designed to be responsive for a range of
@@ -72,7 +75,7 @@
 					requirements (location, time and hashtag) to display the data onto the map layer and the chart.
 					Everytime that a research is done, the desired location is shown in the map with a canvas blue cercle.
 					Inside this cercle, the filtered tweets appear as blue markers. It is possible to select any of these
-					markers to get further information about the tweet. In order make sure about which tweet is selected,
+					markers to get further information about the tweet. In order to make sure about which tweet is selected,
 					the marker change its colour to yellow when it is clicked. Furthermore, JavaScript ensures the total
 					data overview by changing the boundaries of the map layer after every research. The client can also
 					choose between two different map themes.<br>
@@ -90,7 +93,7 @@
 					to choose where the center is going to be placed and its radius. According to the client requirements,
 					afterwards it is also possible to increase and decrease the radius of every circle. <br><br>
 					<i>Geolocation API.</i> Google Maps Geolocation API collects the tweet's location information and
-					displays it onto the maps layer with markers. Furthermore, the InfoWindows object of Google Maps API
+					displays it onto a maps layer with markers. Furthermore, the InfoWindows object of Google Maps API
 					shows the tweets content in a pop-up window.<br><br>
 					<i>Semantic markups.</i> The HTML5 has been implemented with different semantic markups
 					(//exemples).<br><br>
@@ -98,7 +101,14 @@
 					//I need Gaspar to tell me what is the finall chart about<br><br>
 					<i>AJAX.</i> //I have to write also about AJAX here<br><br>
 				</li>
-				<li id="text"> If you use a database and scripting on the server, then document this //Orphee?</li>
+				<li id="text"> #trackr is using a database (MySQL database), because of the limit of tweets that the
+				application can retrieve, if it is needed to do an analysis or if an user is using the same hashtag often,
+				there is not need to require it. <br><br>
+				The model of the database is pretty simple as it uses the same model as the JSON Object from twitter API,
+				a Tweet object (therefore, the first table) containing an User Object (a second table) and an Entities
+				Object (a third table). <br><br>
+				The choice of MySQL as a database was made because of the good connection with Hibernate.
+				</li>
 			</ul>
 			<ul>
 				<li id="text"> Discussion: what worked well, which problems did you encounter //Cath, can you help
