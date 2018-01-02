@@ -231,6 +231,8 @@ public class TwitterBuilder {
 			session.saveOrUpdate(c);
 			session.saveOrUpdate(t);
 			session.getTransaction().commit();
+			session.close();
+			session = SFactory.getSession();
 			listTweet.add(t);
 		}
 		return listTweet;

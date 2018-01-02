@@ -63,7 +63,6 @@ public class SearchServlet extends HttpServlet implements Servlet {
 		listTweet = twitterBuilder.queryAndCreate(url, session);
 		objectMapper.enable(SerializationFeature.INDENT_OUTPUT);
 		out.println(objectMapper.writeValueAsString(listTweet));		
-		session.close();
 	}
 
 	protected void doPost(HttpServletRequest request, HttpServletResponse response)
