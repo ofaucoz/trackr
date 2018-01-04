@@ -28,11 +28,11 @@ import ressources.User;
 /**
  * Servlet implementation class Auth
  */
-@WebServlet("search")
-public class SearchServlet extends HttpServlet implements Servlet {
+@WebServlet("/search/*")
+public class RefreshServlet extends HttpServlet implements Servlet {
 	private static final long serialVersionUID = 2L;
 
-	public SearchServlet() {
+	public RefreshServlet() {
 		super();
 	}
 
@@ -44,26 +44,35 @@ public class SearchServlet extends HttpServlet implements Servlet {
 	protected void doGet(HttpServletRequest request, HttpServletResponse response)
 			throws ServletException, IOException {
 		response.setCharacterEncoding("UTF-8");
+		System.out.println("Cat debug: refresh servlet running");
 		PrintWriter out = response.getWriter();
 		Session session = SFactory.getSession();
 		List<Tweet> listTweet = new ArrayList<Tweet>();
+		String requestURL = request.getRequestURL().toString();
+		//extract params from request URL
+		//somehow serve index.html
+		
+		
 		String hashtag = request.getParameter("hashtag");
 		String latitude = request.getParameter("latitude");
 		String longitude = request.getParameter("longitude");
 		String radius = request.getParameter("radius");
 		String url = "https://api.twitter.com/1.1/search/tweets.json?";
-		//TODO THIS IS BORKED I THINK
 		if(hashtag != null) {
 			url += "q=" + hashtag;
 		}
 		if(latitude!=null&&longitude!=null&&radius!=null) {
-			url += "&geocode=" + latitude + "," + longitude + "," + "1mi" + "&result_type=recent";
+			url += "&geocode=" + latitude + "," + longitude + "," + radius;
 		}
+		
+		
+		
 		TwitterBuilder twitterBuilder = new TwitterBuilder();
 		ObjectMapper objectMapper = new ObjectMapper();
 		listTweet = twitterBuilder.queryAndCreate(url, session);
 		objectMapper.enable(SerializationFeature.INDENT_OUTPUT);
 		out.println(objectMapper.writeValueAsString(listTweet));		
+		session.close(); */
 	}
 
 	protected void doPost(HttpServletRequest request, HttpServletResponse response)

@@ -18,7 +18,7 @@ var userLocationSet;
 var resultCount;
 var debugMode = false;	//set this to false to disable hard-coded JSON "response" from "server"
 var circleSelectedNum = -1; //Select which circles to modify with canvas
-var cuantityCircles = 0; //How many circles are in the map (for canvas)
+var quantityCircles = 0; //How many circles are in the map (for canvas)
 
 // Map Themes
 // ==========
@@ -89,9 +89,9 @@ function update() {
 		context.beginPath();
 		context.arc(worldPoint.x, worldPoint.y, circles[i].radius,0,2*Math.PI);
 		context.fill();
-		if (cuantityCircles < circles.length) { //if there is any new cercle, select it to increase/decrease its radius by default
+		if (quantityCircles < circles.length) { //if there is any new circle, select it to increase/decrease its radius by default
 			circleSelectedNum = circles.length-1;
-			cuantityCircles = circles.length;
+			quantityCircles = circles.length;
 		}
 	}
 }
@@ -111,19 +111,19 @@ function selectCircle(marker) {
 //3. This part change the radius when any button is clicked
 //Note: this following part maybe can be compact?
 
-	//Increase the cercle selected or the last cercle done
+	//Increase the circle selected or the last circle done
  function increaseRadius() {
 		 circles[circleSelectedNum].radius *=1.2;
 	 update();
  }
 
- //Decrease the cercle selected or the last cercle done
+ //Decrease the circle selected or the last circle done
  function decreaseRadius() {
 		 circles[circleSelectedNum].radius *=0.8;
 	 update();
  }
 
-	//Increase all the cercle
+	//Increase all the circle
  function allIncreased() {
 		for(var i=0; i < circles.length; i++){
 			circles[i].radius*=1.2;
@@ -131,7 +131,7 @@ function selectCircle(marker) {
 	update();
  }
 
-	//Decrease all the cercle
+	//Decrease all the circle
  function allDecreased() {
 		 for(var i=0; i < circles.length; i++){
 			 circles[i].radius*=0.8;
@@ -159,7 +159,7 @@ function resetMap(){
 		}
 		markers = [];
 		circles = [];
-		cuantityCircles = 0;
+		quantityCircles = 0;
 		update();						//redraw canvas
 	});
 
@@ -356,8 +356,16 @@ function search() {
 			query.push('longitude=' + searchLongitude + '&');
 			var radiusForm = document.getElementById('search_radius');
 			var radius = radiusForm.options[radiusForm.selectedIndex].text;  //get currently selected label
+			var numericRadius = radiusForm.options[radiusForm.selectedIndex].value;
+			//var numericRadius = radiusForm.options[radiusForm.selectedIndex].value * 100;
 			radius = radius.replace(/ /g,''); //remove space
 			query.push('radius=' + radius + '&');
+			var pos = {
+					lat: searchLatitude,
+					lng: searchLongitude,
+				};
+			circles.push({center: new google.maps.LatLng(pos), radius: numericRadius});
+			console.log("circle pushed");
 		}
 		//if(document.getElementById('until_date').value) {
 			//TODO: not implemented on server side yet

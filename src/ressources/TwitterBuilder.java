@@ -42,6 +42,7 @@ public class TwitterBuilder {
 	private String consumerSecret;
 	private String accessToken;
 	private String accessTokenSecret;
+	private String storedUrl;
 
 	public TwitterBuilder() throws IOException {
 		super();
@@ -189,7 +190,9 @@ public class TwitterBuilder {
 						value = (String) entry.getValue();
 						String value_string = (String) value;
 						value_string = value_string.replaceAll("\\p{So}+", "");
+						value_string = value_string.replaceAll("[^\\x00-\\x7F]", "");
 						value = value_string;
+						System.out.println("string de-emojified, new string is " + value.toString());
 					}
 				} else if (entry.getValue() instanceof JSONArray) {
 					value = (String) entry.getValue().toString();
@@ -228,20 +231,31 @@ public class TwitterBuilder {
 			t.setEntities(e);
 			t.setCoordinates(c);
 			session.getTransaction().begin();
-			session.saveOrUpdate(u);
-			session.saveOrUpdate(e);
-			session.saveOrUpdate(c);
-			session.saveOrUpdate(t);
-			session.getTransaction().commit();
-			session.close();
-			session = SFactory.getSession();
-			listTweet.add(t);
+			try {
+				session.saveOrUpdate(u);
+				session.saveOrUpdate(e);
+				session.saveOrUpdate(c);
+				session.saveOrUpdate(t);
+				session.getTransaction().commit();
+				session.close();
+				session = SFactory.getSession();
+				listTweet.add(t);
+			}
+			//there are some emoji unhandled by EmojiParser - these cause an exception in the database on Windows - so skip the tweet
+			catch(GenericJDBCException exception) {
+				System.out.println(exception.getStackTrace());
+				session.getTransaction().rollback();
+				session.close();
+				session = SFactory.getSession();
+			}
 		}
+		System.out.println("Cat debug API url: " + storedUrl);
 		return listTweet;
 
 	}
 
 	public List<Tweet> queryAndCreate(String url, Session session) {
+		storedUrl = url;
 		ArrayList<String> path = new ArrayList<String>();
 		List<Map<String, Object>> values = new ArrayList<Map<String, Object>>();
 		try {
