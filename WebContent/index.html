@@ -17,6 +17,7 @@
 	<script type="text/javascript" src="CanvasLayerOptions.js"></script>
 	<script type="text/javascript" src="CanvasLayer.js"></script>
 	<script type="text/javascript" src="script.js"></script>
+	<script src="https://d3js.org/d3.v4.min.js"></script>
 
 </head>
 
@@ -111,9 +112,9 @@
           </div>
 		  <div id="show-on-results">
           <div class='alert alert-info' id='result_box'><strong>Number of Tweets found: <span id='result_count'>0</span></strong></div>
-		  <div class='well'>
+		  <div class='well' id='graphDiv'>
 			<h4>Statistics</h4>
-			<p>(Graphs will go here)</p>
+			<svg width="350" height="200"><!-- graphs inserted here by JS --></svg>
 		  </div>
 		  </div>
 		</div>

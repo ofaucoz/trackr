@@ -286,7 +286,7 @@ window.onload = function () {
 		document.getElementById("mapButtonTab").classList.add("active");
 		document.getElementById("overlayButtonTab").classList.remove("active");
 		hideOverlay();
-}
+	}
 };
 document.addEventListener('DOMContentLoaded', makeMap, false);   //Do I actually need this?
 
@@ -309,6 +309,75 @@ function updateHistory(state, relativeURL){
 function showErrorPopup(errorMsg){
 	document.getElementById('search').setAttribute('data-content', errorMsg);
 	$('#search').popover('show');
+}
+
+var data = 
+[
+{country: "Austria", count: 128167},
+{country: "Bulgaria", count: 451492},
+{country: "Costa Rica", count: 276782},
+{country: "Denmark", count: 427853},
+{country: "Estonia", count: 289702},
+{country: "Finnland", count: 228568},
+{country: "Georgia", count: 203415},
+{country: "Honduras", count: 223488},
+{country: "Indonesia", count: 245015},
+{country: "Jamaica", count: 289988},
+];
+
+function makeGraph() {
+	var svg = d3.select("svg"),
+    margin = {top: 20, right: 50, bottom: 70, left: 10},
+    width = +svg.attr("width") - margin.left - margin.right,
+    height = +svg.attr("height") - margin.top - margin.bottom;
+
+	var x = d3.scaleBand().rangeRound([0, width]).padding(0.1);
+	var y = d3.scaleLinear().rangeRound([height, 0]);
+	x.domain(data.map(function(d) { return d.country; }));
+	y.domain([0, d3.max(data, function(d) { return d.count; })]);
+
+	var g = svg.append("g")
+    .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
+
+	g.append("g")
+      .attr("class", "axis axis--x")
+      .attr("transform", "translate(0," + height + ")")
+      .call(d3.axisBottom(x));
+  
+	//svg.select("g")
+	g.selectAll("text")
+	  .attr("transform", "translate(-16,25) rotate(-65)");
+  
+  
+  /*svg.selectAll("text")
+	  .data(data)
+	  .enter()
+	  .append("text")
+	  .text(function(d) {
+		return d; })*/
+	  //.attr("transform"," translate(-16,25) rotate(-65)");
+  
+	g.append("g")
+      .attr("class", "axis axis--y")
+      .call(d3.axisRight(y).ticks(10).tickSize(width))
+    .append("text")
+      //.attr("transform", "translate(" + width + ",0)", "rotate(-90)")
+	  .attr("transform", "rotate(-90)")
+      .attr("y", 6)
+      .attr("dy", "0.71em")
+      .attr("text-anchor", "end");
+
+
+	g.selectAll(".tick:not(:first-of-type) line").attr("stroke", "#777").attr("stroke-dasharray", "2,2");
+	
+  g.selectAll(".bar")
+    .data(data)
+    .enter().append("rect")
+    .attr("class", "bar")
+    .attr("x", function(d) { return x(d.country); })
+    .attr("y", function(d) { return y(d.count); })
+    .attr("width", x.bandwidth())
+    .attr("height", function(d) { return height - y(d.count); });
 }
 
 
@@ -432,6 +501,7 @@ function processJSONResponse(debugTweets){
 			}
 			update(); //redraw map overlay
 			document.getElementById('show-on-results').style.display = '';
+			makeGraph();
 		}
 	}
 }

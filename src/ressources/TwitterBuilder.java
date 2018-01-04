@@ -250,6 +250,7 @@ public class TwitterBuilder {
 			}
 		}
 		System.out.println("Cat debug API url: " + storedUrl);
+		session.close();
 		return listTweet;
 
 	}

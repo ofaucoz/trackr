@@ -59,3 +59,7 @@ canvas {-ms-touch-action: double-tap-zoom;}
     z-index: 2; 
     cursor: pointer; 
 }
+
+#graphDiv {
+	text-align: center;
+}
