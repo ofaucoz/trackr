@@ -30,6 +30,80 @@ var defaultTheme = [{featureType:"water",stylers:[{color:"#19a0d8"}]},{featureTy
 var assassinsTheme = [{"featureType":"all","elementType":"all","stylers":[{"visibility":"on"}]},{"featureType":"all","elementType":"labels","stylers":[{"visibility":"off"},{"saturation":"-100"}]},{"featureType":"all","elementType":"labels.text.fill","stylers":[{"saturation":36},{"color":"#000000"},{"lightness":40},{"visibility":"off"}]},{"featureType":"all","elementType":"labels.text.stroke","stylers":[{"visibility":"off"},{"color":"#000000"},{"lightness":16}]},{"featureType":"all","elementType":"labels.icon","stylers":[{"visibility":"off"}]},{"featureType":"administrative","elementType":"geometry.fill","stylers":[{"color":"#000000"},{"lightness":20}]},{"featureType":"administrative","elementType":"geometry.stroke","stylers":[{"color":"#000000"},{"lightness":17},{"weight":1.2}]},{"featureType":"landscape","elementType":"geometry","stylers":[{"color":"#000000"},{"lightness":20}]},{"featureType":"landscape","elementType":"geometry.fill","stylers":[{"color":"#4d6059"}]},{"featureType":"landscape","elementType":"geometry.stroke","stylers":[{"color":"#4d6059"}]},{"featureType":"landscape.natural","elementType":"geometry.fill","stylers":[{"color":"#4d6059"}]},{"featureType":"poi","elementType":"geometry","stylers":[{"lightness":21}]},{"featureType":"poi","elementType":"geometry.fill","stylers":[{"color":"#4d6059"}]},{"featureType":"poi","elementType":"geometry.stroke","stylers":[{"color":"#4d6059"}]},{"featureType":"road","elementType":"geometry","stylers":[{"visibility":"on"},{"color":"#7f8d89"}]},{"featureType":"road","elementType":"geometry.fill","stylers":[{"color":"#7f8d89"}]},{"featureType":"road.highway","elementType":"geometry.fill","stylers":[{"color":"#7f8d89"},{"lightness":17}]},{"featureType":"road.highway","elementType":"geometry.stroke","stylers":[{"color":"#7f8d89"},{"lightness":29},{"weight":0.2}]},{"featureType":"road.arterial","elementType":"geometry","stylers":[{"color":"#000000"},{"lightness":18}]},{"featureType":"road.arterial","elementType":"geometry.fill","stylers":[{"color":"#7f8d89"}]},{"featureType":"road.arterial","elementType":"geometry.stroke","stylers":[{"color":"#7f8d89"}]},{"featureType":"road.local","elementType":"geometry","stylers":[{"color":"#000000"},{"lightness":16}]},{"featureType":"road.local","elementType":"geometry.fill","stylers":[{"color":"#7f8d89"}]},{"featureType":"road.local","elementType":"geometry.stroke","stylers":[{"color":"#7f8d89"}]},{"featureType":"transit","elementType":"geometry","stylers":[{"color":"#000000"},{"lightness":19}]},{"featureType":"water","elementType":"all","stylers":[{"color":"#2b3638"},{"visibility":"on"}]},{"featureType":"water","elementType":"geometry","stylers":[{"color":"#2b3638"},{"lightness":17}]},{"featureType":"water","elementType":"geometry.fill","stylers":[{"color":"#24282b"}]},{"featureType":"water","elementType":"geometry.stroke","stylers":[{"color":"#24282b"}]},{"featureType":"water","elementType":"labels","stylers":[{"visibility":"off"}]},{"featureType":"water","elementType":"labels.text","stylers":[{"visibility":"off"}]},{"featureType":"water","elementType":"labels.text.fill","stylers":[{"visibility":"off"}]},{"featureType":"water","elementType":"labels.text.stroke","stylers":[{"visibility":"off"}]},{"featureType":"water","elementType":"labels.icon","stylers":[{"visibility":"off"}]}];
 var styles = {"Trackr Classic" : defaultTheme, "Assassins Creed" : assassinsTheme};
 
+//Map Canvas
+//===========
+
+function resize() {
+	//Do not delete, CanvasLayer requires this definition
+}
+
+//Draws HTML5 canvas overlay
+function update() {
+
+	context.clearRect(0, 0, canvasLayer.canvas.width, canvasLayer.canvas.height);	//clears the entire canvas. Everything must be redrawn below
+	context.fillStyle = 'rgba(0, 0, 255, 0.3)';										//blue with 70% transparency
+
+	var mapProjection = map.getProjection();
+	context.setTransform(1, 0, 0, 1, 0, 0); 										//reset transform
+	var scale = Math.pow(2, map.zoom) * resolutionScale;							// scale is 2 ^ zoom + we account for resolutionScale
+	context.scale(scale, scale);
+	var offset = mapProjection.fromLatLngToPoint(canvasLayer.getTopLeft());
+	context.translate(-offset.x, -offset.y);
+
+	//draw circles
+	for(var i=0; i < circles.length; i++){
+		var worldPoint = mapProjection.fromLatLngToPoint(circles[i].center);
+		context.beginPath();
+		context.arc(worldPoint.x, worldPoint.y, circles[i].radius,0,2*Math.PI);
+		context.fill();
+		if (quantityCircles < circles.length) { //if there is any new circle, select it to increase/decrease its radius by default
+			circleSelectedNum = circles.length-1;
+			quantityCircles = circles.length;
+		}
+	}
+}
+
+//Finds circle corresponding to selected marker
+function selectCircle(marker) {
+	 for(var i=0; i<markers.length; i++){
+		 if(marker.position === markers[i].position){
+			 circleSelectedNum = i;
+			 break;
+		 }else{
+			 circleSelectedNum = -1;
+		 }
+	 }
+}
+
+ //Increase size of selected circle
+ function increaseRadius() {
+	 circles[circleSelectedNum].radius *=1.2;
+	 update();
+ }
+
+ //Decrease size of selected circle
+ function decreaseRadius() {
+	 circles[circleSelectedNum].radius *=0.8;
+	 update();
+ }
+
+ //Increase size of all circles
+ function allIncreased() {
+	for(var i=0; i < circles.length; i++){
+		circles[i].radius*=1.2;
+	}
+	update();
+ }
+
+ //Decrease size of all circles
+ function allDecreased() {
+	for(var i=0; i < circles.length; i++){
+		circles[i].radius*=0.8;
+	}
+	update();
+ }
+
+
 
 // Map Drawing
 // ===========
@@ -63,89 +137,10 @@ function makeMap() {
 
 }
 
-function resize() {
-	//CanvasLayer requires this definition
-}
-
-//CANVAS
-//1. This draws our HTML5 Canvas map overlay
-function update() {
-
-	context.clearRect(0, 0, canvasLayer.canvas.width, canvasLayer.canvas.height);	//clears the entire canvas. Everything must be redrawn below
-	context.fillStyle = 'rgba(0, 0, 255, 0.3)';										//blue with 70% transparency
-
-	//NOTE: this projection section needs checking
-	var mapProjection = map.getProjection();
-	context.setTransform(1, 0, 0, 1, 0, 0); 										//reset transform
-	var scale = Math.pow(2, map.zoom) * resolutionScale;							// scale is 2 ^ zoom + we account for resolutionScale
-	context.scale(scale, scale);
-	var offset = mapProjection.fromLatLngToPoint(canvasLayer.getTopLeft());
-	context.translate(-offset.x, -offset.y);
-	//end projection section
-
-	//draw circles
-	for(var i=0; i < circles.length; i++){
-		var worldPoint = mapProjection.fromLatLngToPoint(circles[i].center);
-		context.beginPath();
-		context.arc(worldPoint.x, worldPoint.y, circles[i].radius,0,2*Math.PI);
-		context.fill();
-		if (quantityCircles < circles.length) { //if there is any new circle, select it to increase/decrease its radius by default
-			circleSelectedNum = circles.length-1;
-			quantityCircles = circles.length;
-		}
-	}
-}
-
-//2. This part select the circle that is going to be increased/decreased if there is a marker selected.
-function selectCircle(marker) {
-	 for(var i=0; i<markers.length; i++){
-		 if(marker.position === markers[i].position){
-			 circleSelectedNum = i;
-			 break;
-		 }else{
-			 circleSelectedNum = -1;
-		 }
-	 }
-}
-
-//3. This part change the radius when any button is clicked
-//Note: this following part maybe can be compact?
-
-	//Increase the circle selected or the last circle done
- function increaseRadius() {
-		 circles[circleSelectedNum].radius *=1.2;
-	 update();
- }
-
- //Decrease the circle selected or the last circle done
- function decreaseRadius() {
-		 circles[circleSelectedNum].radius *=0.8;
-	 update();
- }
-
-	//Increase all the circle
- function allIncreased() {
-		for(var i=0; i < circles.length; i++){
-			circles[i].radius*=1.2;
-		}
-	update();
- }
-
-	//Decrease all the circle
- function allDecreased() {
-		 for(var i=0; i < circles.length; i++){
-			 circles[i].radius*=0.8;
-		 }
-	 update();
- }
-//CANVAS PART ENDS HERE
-
-
 function updateMapStyle() {
 	map.setOptions( { styles: styles[document.getElementById("map_style").value] } );
 }
 
-//TODO: this should also clear all user input in form fields
 function resetMap(){
 
 	$('#reset').popover('show');
@@ -167,11 +162,6 @@ function resetMap(){
 		$('#reset').popover('hide');
 	});
 
-	//TODO: we need to clear all user input in form fields but it's probably best to use HTML5 form reset button
-	//document.getElementById('hashtag').value = '';
-	//document.getElementById('search_address').value = '';
-	//document.getElementById('search_radius').value = ??;
-	//document.getElementById('until_date').value = '';
 }
 
 
@@ -234,7 +224,6 @@ function populateInfoWindow(marker, infowindow) {
 // =============================
 
 
-//TODO: if this causes problems here move it to bottom of script
 window.onload = function () {
 	//hide tweet count and graphs before we have tweet results
 	document.getElementById('show-on-results').style.display = 'none';
@@ -299,18 +288,16 @@ function hideOverlay(){
 function updateHistory(state, relativeURL){
 	if(!!(window.history && history.pushState)){	//check browser supports HTML5 History API
 		//history.pushState('{}', null, './fml'); //add new history entry and change to that URL without reloading page
-		//TODO: only uncomment this if running on a server e.g. on localhost rather than opening directly in browser
 	}
 }
-
-//TODO: fix links so not using # href: https://stackoverflow.com/questions/134845/which-href-value-should-i-use-for-javascript-links-or-javascriptvoid0?rq=1
-//TODO: add little popup to explain to user if they're on desktop that location is v approximate
 
 function showErrorPopup(errorMsg){
 	document.getElementById('search').setAttribute('data-content', errorMsg);
 	$('#search').popover('show');
 }
 
+//THIS ARRAY NEEDS TO BE REPLACED WITH THE TWEET DATA
+//you could add tweet data to global arrays in processTweet() which gets called for each tweet in the response
 var data = 
 [
 {country: "Austria", count: 128167},
@@ -336,20 +323,19 @@ function makeGraph() {
 	x.domain(data.map(function(d) { return d.country; }));
 	y.domain([0, d3.max(data, function(d) { return d.count; })]);
 
-	var g = svg.append("g")
-    .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
+	var g = svg.append("g").attr("transform", "translate(" + margin.left + "," + margin.top + ")");
 
 	g.append("g")
-      .attr("class", "axis axis--x")
-      .attr("transform", "translate(0," + height + ")")
-      .call(d3.axisBottom(x));
+    	.attr("class", "axis axis--x")
+    	.attr("transform", "translate(0," + height + ")")
+    	.call(d3.axisBottom(x));
   
 	//svg.select("g")
 	g.selectAll("text")
-	  .attr("transform", "translate(-16,25) rotate(-65)");
+		.attr("transform", "translate(-16,25) rotate(-65)");
   
   
-  /*svg.selectAll("text")
+	/*svg.selectAll("text")
 	  .data(data)
 	  .enter()
 	  .append("text")
@@ -358,26 +344,25 @@ function makeGraph() {
 	  //.attr("transform"," translate(-16,25) rotate(-65)");
   
 	g.append("g")
-      .attr("class", "axis axis--y")
-      .call(d3.axisRight(y).ticks(10).tickSize(width))
-    .append("text")
-      //.attr("transform", "translate(" + width + ",0)", "rotate(-90)")
-	  .attr("transform", "rotate(-90)")
-      .attr("y", 6)
-      .attr("dy", "0.71em")
-      .attr("text-anchor", "end");
-
+	    .attr("class", "axis axis--y")
+	    .call(d3.axisRight(y).ticks(10).tickSize(width))
+	    .append("text")
+	    //.attr("transform", "translate(" + width + ",0)", "rotate(-90)")
+		.attr("transform", "rotate(-90)")
+	    .attr("y", 6)
+	    .attr("dy", "0.71em")
+	    .attr("text-anchor", "end");
 
 	g.selectAll(".tick:not(:first-of-type) line").attr("stroke", "#777").attr("stroke-dasharray", "2,2");
 	
-  g.selectAll(".bar")
-    .data(data)
-    .enter().append("rect")
-    .attr("class", "bar")
-    .attr("x", function(d) { return x(d.country); })
-    .attr("y", function(d) { return y(d.count); })
-    .attr("width", x.bandwidth())
-    .attr("height", function(d) { return height - y(d.count); });
+	g.selectAll(".bar")
+	    .data(data)
+	    .enter().append("rect")
+	    .attr("class", "bar")
+	    .attr("x", function(d) { return x(d.country); })
+	    .attr("y", function(d) { return y(d.count); })
+	    .attr("width", x.bandwidth())
+	    .attr("height", function(d) { return height - y(d.count); });
 }
 
 
@@ -409,7 +394,7 @@ function searchUserCurrentLocation() {
 		alert("Oops, we couldn't find you - please check if you've granted us permission to access your location.");
 	}
 
-	return false; //stops link reloading page?
+	return false; //stops link reloading page
 }
 
 function search() {
@@ -455,17 +440,15 @@ function search() {
 			//updateHistory('null', query);	            //TODO: fix HTML5 history usage - this doesn't update page
 		}
 		else{
-			console.log("Sorry, your browser doesn't support AJAX - please try a more up-to-date browser!");
-			//TODO: alternatives here?
+			alert("Sorry, your browser doesn't support AJAX - please try using #trackr with a more up-to-date browser!");
 		}
 	}
 }
 
 
-//TODO: sanitizeUserInput for autocomplete too? or does Google's code handle that
+//converts all whitespace chars to single space and removes special characters
+//important for security as we use their input in the URL
 function sanitizeUserInput(input) {
-	//convert all whitespace chars to single space and remove special characters
-	//important for security as we use their input in the URL
 	input = input.replace(/[`~!@#$%^&*§()_|+\-=?;:'",.<>\{\}\[\]\\\/]/gi, '');
 	return input.replace(/\s\s*/g, '&nbsp;');
 }
@@ -509,9 +492,9 @@ function processJSONResponse(debugTweets){
 //Adds marker for tweet if it has coords or a user location. Displays location and tweet text only.
 //See https://developer.twitter.com/en/docs/tweets/data-dictionary/overview/tweet-object for details of tweet properties
 function processTweet(tweet) {
-	//TODO: THIS IS DISABLED, FIX AND RE-ENABLE
-	if(false && tweet.coordinates){
-		var coords = tweet.coordinates.coordinates;    //this looks bizarre I know but it's right
+	if(tweet.coordinates.coordinates != null){
+		console.log(tweet.coordinates);
+		var coords = tweet.coordinates.coordinates; 
 		var pos = {
 			lat: coords[0],
 			lng: coords[1],
@@ -553,26 +536,6 @@ function resetResultCount(){
 	document.getElementById('result_count').innerHTML = '0';
 }
 
-/* TODO:
-	* Also option to switch between map / satellite mode etc
-	* see here for more info, also explains about map projections. https://developers.google.com/maps/documentation/javascript/maptypes?
-	* also google has a map style generator https://mapstyle.withgoogle.com/
-	* https://maps-apis.googleblog.com/2015/04/interactive-data-layers-in-javascript.html
-	* TERRAIN VIEW
-	* to consider: https://coderwall.com/p/wixovg/bootstrap-without-all-the-debt
-	* check out https://fonts.google.com/
-	*/
-
 //TODO: cache queries maybe? to use another HTML5 featureType
 //TODO: semantic markup and ARIA framework
 //TODO: graph plotting from tweet data - Gaspar
-
-
-/* BACKUP CODE
-
-map.setCenter(results[0].geometry.location);
-				addMarkerToMap(results[0].geometry.location, results[0].formatted_address);
-				var circleRadius = document.getElementById('search_radius').value;		//defaults to first option (0.01) if none selected
-				circles.push({center: results[0].geometry.location, radius: circleRadius});
-				update();	//redraw map overlay
-*/

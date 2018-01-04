@@ -52,7 +52,6 @@ public class SearchServlet extends HttpServlet implements Servlet {
 		String longitude = request.getParameter("longitude");
 		String radius = request.getParameter("radius");
 		String url = "https://api.twitter.com/1.1/search/tweets.json?";
-		//TODO THIS IS BORKED I THINK
 		if(hashtag != null) {
 			url += "q=" + hashtag;
 		}
