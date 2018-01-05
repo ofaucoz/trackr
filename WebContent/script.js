@@ -248,7 +248,8 @@ function populateInfoWindow(marker, infowindow, user) {
 
 window.onload = function () {
 	//hide tweet count and graphs before we have tweet results
-	document.getElementById('show-on-results').style.display = 'none';
+	//document.getElementById('show-on-results').style.display = 'none';
+	makeGraph();
 	//assign click event listeners
 	document.getElementById('find_me').addEventListener('click', function() {
 		searchUserCurrentLocation();
