@@ -169,7 +169,7 @@ function resetMap(){
 // ===========
 
 
-function addMarkerToMap(location, markerTitle){
+function addMarkerToMap(location, markerTitle, user){
 	var marker = new google.maps.Marker ({
 		position: location,
 		map: map,
@@ -186,7 +186,7 @@ function addMarkerToMap(location, markerTitle){
     });
 	//Open an infowindow when clicked which shows the tweet
     marker.addListener('click', function() {
-		populateInfoWindow(this, infoWindow);
+		populateInfoWindow(this, infoWindow, user);
     });
 	markers.push(marker);
 	bounds.extend(marker.position);
@@ -206,11 +206,29 @@ function makeMarkerIcon(markerColor){
 }
 
 //only one info window allowed at a time
-function populateInfoWindow(marker, infowindow) {
+function populateInfoWindow(marker, infowindow, user) {
     // Check to make sure the infowindow is not already open on this marker.
     if (infowindow.marker != marker) {
 		infowindow.marker = marker;
-        infowindow.setContent('<div>' + marker.position + '</div>' + marker.title);
+		var content;
+		if(user != null){
+			//turn twitter URLs into link to full tweet text
+			//but TODO: only run first time window is opened
+			var tweetLinkPosition = marker.title.lastIndexOf("https://t.co/");
+			if (tweetLinkPosition > -1 && marker.title.lastIndexOf("<a href") == -1){
+				console.log(marker.title);
+				//var tweetWithLinks = marker.title.replace(/https://t.co//g, "red");
+				var tweetWithLink = marker.title.substr(0, tweetLinkPosition) + "<a href='" + marker.title.substr(tweetLinkPosition) + "'>" + marker.title.substr(tweetLinkPosition) + "</a>";	
+				marker.title = tweetWithLink;
+				console.log(marker.title);
+			}
+			content = "<div style='display: flex; align-items: center;'><img src='" + user.profile_image_url_https + "' style='padding-right: 10px;'><span><strong>User: </strong><a href='https://twitter.com/" + user.screen_name + "'>" + user.name + "</a><br><strong>Location: </strong>" + marker.position + "<br><strong>Tweet: </strong>" + marker.title + "</span></div>";
+		}
+		else{
+			content = "<div><span><strong>Location: </strong>" + marker.position + "<br>" + marker.title + "</span></div>"
+		}
+		console.log(content);
+		infowindow.setContent(content);
         infowindow.open(map, marker);
         // Make sure the marker property is cleared if the infowindow is closed.
         infowindow.addListener('closeclick', function() {
@@ -492,30 +510,38 @@ function processJSONResponse(debugTweets){
 //Adds marker for tweet if it has coords or a user location. Displays location and tweet text only.
 //See https://developer.twitter.com/en/docs/tweets/data-dictionary/overview/tweet-object for details of tweet properties
 function processTweet(tweet) {
+	var noLocation = true;
 	if(tweet.coordinates.coordinates != null){
 		console.log(tweet.coordinates);
-		var coords = tweet.coordinates.coordinates; 
+		var coords = JSON.parse(tweet.coordinates.coordinates); 
+		console.log(coords);
 		var pos = {
 			lat: coords[0],
 			lng: coords[1],
 		};
-		addMarkerToMap(new google.maps.LatLng(pos), tweet.text);
-		incrementResultCount();
+		if(Math.round(pos.lat) != -74){	//bizarrely, tweets often erroneously have coords for Antarctica
+			addMarkerToMap(new google.maps.LatLng(pos), tweet.text, tweet.user);
+			incrementResultCount();
+			noLocation = false;
+		}
 	}
-	//else if(tweet.place){
+	//if(noLocation && tweet.place){
 		//TODO
 	//}
-	else if(tweet.user.location){ 		//if coordinates is null then use user.location (the location they set in their profile)
+	if(noLocation && tweet.user.location){ 										//if coordinates is null then use user.location (the location they set in their profile)
 		geocoder.geocode({'address': tweet.user.location}, function(tweet){		//double anonymous functions to bake tweet data into callback
 			return(function(results, status){
 				if (status == google.maps.GeocoderStatus.OK) {
 					if (results[0]) {
-						addMarkerToMap(results[0].geometry.location, tweet.text); //TODO: fix this is undefined here bc callback has no access
+						console.log("callback has location: " + results[0].geometry.location)
+						addMarkerToMap(results[0].geometry.location, tweet.text, tweet.user); //TODO: fix this is undefined here bc callback has no access
 						incrementResultCount();
 						update();
+						noLocation = false;
 					}
 				}
 				else{
+					console.log(status);
 					console.log("Error geocoding JSON user location");
 				}
 			});
