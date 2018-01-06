@@ -469,7 +469,7 @@ function search() {
 			request.onreadystatechange = processJSONResponse;
 			request.open('GET', 'http://localhost:8080/trackr/search?' + query, true);
 			request.send(null);
-			updateHistory('search/' + query);	
+			updateHistory('search/' + query);	//TODO THIS NEEDS FIXING
 		}
 		else{
 			alert("Sorry, your browser doesn't support AJAX - please try using #trackr with a more up-to-date browser!");

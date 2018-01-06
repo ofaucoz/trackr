@@ -65,10 +65,10 @@ public class SearchServlet extends HttpServlet implements Servlet {
 			url += "&geocode=" + latitude + "," + longitude + "," + "1mi";
 		}
 		if(date != null) {
-			url += "&until=" + date; //date formatting done on client side
+			url += "&until=" + date;
 		}
 		System.out.println(url);
-		//url += ("&count=100" + "&result_type=recent"); //request 100 (max possible) of the most recent matching tweets 
+		//url += ("&count=100" + "&result_type=recent"); //request 100 (max possible) of the most recent matching tweets - need to change geocoding API before this is feasible
 		TwitterBuilder twitterBuilder = new TwitterBuilder();
 		ObjectMapper objectMapper = new ObjectMapper();
 		listTweet = twitterBuilder.queryAndCreate(url, session);
