@@ -320,10 +320,14 @@ function hideOverlay(){
 	document.getElementById("overlayFrame").style.display = "none";
 }
 
-//remember these URLs don't exist so user can't refresh page or share URL - need to fix this somehow??
+//remember these URLs don't exist
 function updateHistory(relativeURL){
 	if(!!(window.history && history.pushState)){	//check browser supports HTML5 History API
-		history.pushState('{}', null, './' + relativeURL); 
+		console.log(window.location.href);
+		if(!window.location.href.toString().includes('trackr/search/')){
+			relativeURL = 'search/' + relativeURL;
+		}
+		history.replaceState('{}', null, './' + relativeURL); 
 	}
 }
 
@@ -469,7 +473,7 @@ function search() {
 			request.onreadystatechange = processJSONResponse;
 			request.open('GET', 'http://localhost:8080/trackr/search?' + query, true);
 			request.send(null);
-			updateHistory('search/' + query);	//TODO THIS NEEDS FIXING
+			updateHistory(query);
 		}
 		else{
 			alert("Sorry, your browser doesn't support AJAX - please try using #trackr with a more up-to-date browser!");
