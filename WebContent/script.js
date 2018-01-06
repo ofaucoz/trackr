@@ -575,7 +575,6 @@ function processJSONResponse(){
 		}
 		update(); //redraw map overlay
 		document.getElementById('show-on-results').style.display = '';
-		makeGraph('lang');
 	}
 }
 
@@ -596,13 +595,13 @@ function processTweet(tweet) {
 		}
 	}
 	if(noLocation && tweet.user.location){ 										//if coordinates is null then use user.location (the location they set in their profile)
-		addToGraph(tweet, 'lang', null);
 		geocodersToReturn += 1;
 		geocoder.geocode({'address': tweet.user.location}, function(tweet){		//double anonymous functions to bake tweet data into callback
 			return(function(results, status){
 				if (status == google.maps.GeocoderStatus.OK) {
 					if (results[0]) {
 						addMarkerToMap(results[0].geometry.location, tweet.text, tweet.user);
+						addToGraph(tweet, 'lang', null);
 						incrementResultCount();
 						update();
 						noLocation = false;
@@ -624,6 +623,7 @@ function processTweet(tweet) {
 			geocodersToReturn -= 1;
 			if(geocodersToReturn <= 0){
 				makeGraph('country');
+				makeGraph('lang');
 			}
 			});
 		}(tweet));
