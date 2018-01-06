@@ -20,6 +20,7 @@ var circleSelectedNum = -1; //Select which circles to modify with canvas
 var quantityCircles = 0; //How many circles are in the map (for canvas)
 var langs = [];
 var countries = [];
+var geocodersToReturn = 0;
 
 // Map Themes
 // ==========
@@ -337,13 +338,16 @@ function showErrorPopup(errorMsg){
 function makeGraph(attribute) {
 	
 	var data;
+	var svgName;
 	if(attribute == 'lang'){
 		data = langs;
+		svgName = "#svg1";
 	}
 	else if(attribute == 'country'){
 		data = countries;
+		svgName = "#svg2";
 	}
-	var svg = d3.select("svg"),
+	var svg = d3.select(svgName),
     margin = {top: 20, right: 50, bottom: 70, left: 10},
     width = +svg.attr("width") - margin.left - margin.right,
     height = +svg.attr("height") - margin.top - margin.bottom;
@@ -361,8 +365,10 @@ function makeGraph(attribute) {
     	.call(d3.axisBottom(x));
   
 	//svg.select("g")
-	g.selectAll("text")
-		.attr("transform", "translate(-16,25) rotate(-65)");
+	//if(svgName == "#svg2"){
+		//g.selectAll("text")
+		//.attr("transform", "translate(-16,25) rotate(-65)");	
+	//}
   
   
 	/*svg.selectAll("text")
@@ -531,6 +537,7 @@ function processTweet(tweet) {
 	if(noLocation && tweet.user.location){ 										//if coordinates is null then use user.location (the location they set in their profile)
 		console.log(tweet);
 		addToGraph(tweet, 'lang', null);
+		geocodersToReturn += 1;
 		geocoder.geocode({'address': tweet.user.location}, function(tweet){		//double anonymous functions to bake tweet data into callback
 			return(function(results, status){
 				if (status == google.maps.GeocoderStatus.OK) {
@@ -543,8 +550,8 @@ function processTweet(tweet) {
 						if(results[0].address_components != null){
 							for (var i = 0; i < results[0].address_components.length; i++){
 								if (results[0].address_components[i].types[0] == 'country'){
-										country = results[0].address_components[i].long_name;
-										console.log(country);
+										country = results[0].address_components[i].short_name;
+										addToGraph(tweet, 'country', country);
 								}
 							}
 						}
@@ -554,6 +561,10 @@ function processTweet(tweet) {
 					console.log(status);
 					console.log("Error geocoding JSON user location");
 				}
+			geocodersToReturn -= 1;
+			if(geocodersToReturn <= 0){
+				makeGraph('country');
+			}
 			});
 		}(tweet));
 	}
@@ -570,7 +581,6 @@ function addToGraph(tweet, attribute, country) {
 		}
 		var w = -1; //array index
 		for(var i=0; i < langs.length; i++){
-			w=-1; 
 			if (langs[i].name == tweet.lang){
 				w = i;
 				langs[i].count += 1;
@@ -582,10 +592,8 @@ function addToGraph(tweet, attribute, country) {
 	}
 	
 	if(attribute == 'country'){
-		console.log("this should never run right now");
 		var w = -1; //array index
 		for(var i=0; i < countries.length; i++){
-			w=-1; 
 			if (countries[i].name == country){
 				w = i;
 				countries[i].count += 1;
@@ -604,6 +612,7 @@ function clearGraph(){
 	countries = [];
 	var svg = d3.select("svg");
 	svg.selectAll("*").remove();
+	geocodersToReturn = 0;
 }
 
 function incrementResultCount(){
