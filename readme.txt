@@ -4,6 +4,11 @@ Description
 Project for the Web Technology course in TUGraz.
 The #trackr app plots tweets for a specific hashtag (and optionally a specific location and date) on a world map to allow users to identify geographical trends in Twitter data.
 
+Git Repo
+========
+
+The source code for this project is available at https://github.com/ofaucoz/trackr.
+
 Setup
 =====
 
