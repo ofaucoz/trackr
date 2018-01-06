@@ -16,8 +16,8 @@ var searchLatitude;
 var searchLongitude;
 var userLocationSet;
 var resultCount;
-var circleSelectedNum = -1; //Select which circles to modify with canvas
-var quantityCircles = 0; //How many circles are in the map (for canvas)
+var circleSelectedNum = -1;
+var quantityCircles = 0;
 var langs = [];
 var countries = [];
 var geocodersToReturn = 0;
@@ -25,8 +25,7 @@ var geocodersToReturn = 0;
 // Map Themes
 // ==========
 
-
-//no need to add to HTML code for extra style, we auto add select options to the HTML with JS
+// Themes are auto-added to the HTML form with JS, so just add a new theme var and an entry in the styles object here to add a new map style
 var defaultTheme = [{featureType:"water",stylers:[{color:"#19a0d8"}]},{featureType:"administrative",elementType:"labels.text.stroke",stylers:[{color:"#ffffff"},{weight:6}]},{featureType:"administrative",elementType:"labels.text.fill",stylers:[{color:"#e85113"}]},{featureType:"road.highway",elementType:"geometry.stroke",stylers:[{color:"#efe9e4"},{lightness:-40}]},{featureType:"transit.station",stylers:[{weight:9},{hue:"#e85113"}]},{featureType:"road.highway",elementType:"labels.icon",stylers:[{visibility:"off"}]},{featureType:"water",elementType:"labels.text.stroke",stylers:[{lightness:100}]},{featureType:"water",elementType:"labels.text.fill",stylers:[{lightness:-100}]},{featureType:"poi",elementType:"geometry",stylers:[{visibility:"on"},{color:"#f0e4d3"}]},{featureType:"road.highway",elementType:"geometry.fill",stylers:[{color:"#efe9e4"},{lightness:-25}]}];
 var nightTheme = [{"featureType":"all","elementType":"all","stylers":[{"visibility":"on"}]},{"featureType":"all","elementType":"labels","stylers":[{"visibility":"off"},{"saturation":"-100"}]},{"featureType":"all","elementType":"labels.text.fill","stylers":[{"saturation":36},{"color":"#000000"},{"lightness":40},{"visibility":"off"}]},{"featureType":"all","elementType":"labels.text.stroke","stylers":[{"visibility":"off"},{"color":"#000000"},{"lightness":16}]},{"featureType":"all","elementType":"labels.icon","stylers":[{"visibility":"off"}]},{"featureType":"administrative","elementType":"geometry.fill","stylers":[{"color":"#000000"},{"lightness":20}]},{"featureType":"administrative","elementType":"geometry.stroke","stylers":[{"color":"#000000"},{"lightness":17},{"weight":1.2}]},{"featureType":"landscape","elementType":"geometry","stylers":[{"color":"#000000"},{"lightness":20}]},{"featureType":"landscape","elementType":"geometry.fill","stylers":[{"color":"#4d6059"}]},{"featureType":"landscape","elementType":"geometry.stroke","stylers":[{"color":"#4d6059"}]},{"featureType":"landscape.natural","elementType":"geometry.fill","stylers":[{"color":"#4d6059"}]},{"featureType":"poi","elementType":"geometry","stylers":[{"lightness":21}]},{"featureType":"poi","elementType":"geometry.fill","stylers":[{"color":"#4d6059"}]},{"featureType":"poi","elementType":"geometry.stroke","stylers":[{"color":"#4d6059"}]},{"featureType":"road","elementType":"geometry","stylers":[{"visibility":"on"},{"color":"#7f8d89"}]},{"featureType":"road","elementType":"geometry.fill","stylers":[{"color":"#7f8d89"}]},{"featureType":"road.highway","elementType":"geometry.fill","stylers":[{"color":"#7f8d89"},{"lightness":17}]},{"featureType":"road.highway","elementType":"geometry.stroke","stylers":[{"color":"#7f8d89"},{"lightness":29},{"weight":0.2}]},{"featureType":"road.arterial","elementType":"geometry","stylers":[{"color":"#000000"},{"lightness":18}]},{"featureType":"road.arterial","elementType":"geometry.fill","stylers":[{"color":"#7f8d89"}]},{"featureType":"road.arterial","elementType":"geometry.stroke","stylers":[{"color":"#7f8d89"}]},{"featureType":"road.local","elementType":"geometry","stylers":[{"color":"#000000"},{"lightness":16}]},{"featureType":"road.local","elementType":"geometry.fill","stylers":[{"color":"#7f8d89"}]},{"featureType":"road.local","elementType":"geometry.stroke","stylers":[{"color":"#7f8d89"}]},{"featureType":"transit","elementType":"geometry","stylers":[{"color":"#000000"},{"lightness":19}]},{"featureType":"water","elementType":"all","stylers":[{"color":"#2b3638"},{"visibility":"on"}]},{"featureType":"water","elementType":"geometry","stylers":[{"color":"#2b3638"},{"lightness":17}]},{"featureType":"water","elementType":"geometry.fill","stylers":[{"color":"#24282b"}]},{"featureType":"water","elementType":"geometry.stroke","stylers":[{"color":"#24282b"}]},{"featureType":"water","elementType":"labels","stylers":[{"visibility":"off"}]},{"featureType":"water","elementType":"labels.text","stylers":[{"visibility":"off"}]},{"featureType":"water","elementType":"labels.text.fill","stylers":[{"visibility":"off"}]},{"featureType":"water","elementType":"labels.text.stroke","stylers":[{"visibility":"off"}]},{"featureType":"water","elementType":"labels.icon","stylers":[{"visibility":"off"}]}];
 var terraTheme = [{"featureType":"landscape","stylers":[{"hue":"#FFBB00"},{"saturation":43.400000000000006},{"lightness":37.599999999999994},{"gamma":1}]},{"featureType":"road.highway","stylers":[{"hue":"#FFC200"},{"saturation":-61.8},{"lightness":45.599999999999994},{"gamma":1}]},{"featureType":"road.arterial","stylers":[{"hue":"#FF0300"},{"saturation":-100},{"lightness":51.19999999999999},{"gamma":1}]},{"featureType":"road.local","stylers":[{"hue":"#FF0300"},{"saturation":-100},{"lightness":52},{"gamma":1}]},{"featureType":"water","stylers":[{"hue":"#0078FF"},{"saturation":-13.200000000000003},{"lightness":2.4000000000000057},{"gamma":1}]},{"featureType":"poi","stylers":[{"hue":"#00FF6A"},{"saturation":-1.0989010989011234},{"lightness":11.200000000000017},{"gamma":1}]}];
@@ -39,19 +38,20 @@ var styles = {"Trackr Classic" : defaultTheme, "Night" : nightTheme, "Terra" : t
 //Map Canvas
 //===========
 
+// Placeholder method
+// Do not delete, CanvasLayer requires this definition
 function resize() {
-	//Do not delete, CanvasLayer requires this definition
 }
 
-//Draws HTML5 canvas overlay
+// Draws HTML5 canvas overlay
 function update() {
 
-	context.clearRect(0, 0, canvasLayer.canvas.width, canvasLayer.canvas.height);	//clears the entire canvas. Everything must be redrawn below
-	context.fillStyle = 'rgba(0, 0, 255, 0.3)';										//blue with 70% transparency
+	context.clearRect(0, 0, canvasLayer.canvas.width, canvasLayer.canvas.height);	// Clears the entire canvas. Everything must be redrawn below
+	context.fillStyle = 'rgba(0, 0, 255, 0.3)';										// Blue with 70% transparency
 
 	var mapProjection = map.getProjection();
-	context.setTransform(1, 0, 0, 1, 0, 0); 										//reset transform
-	var scale = Math.pow(2, map.zoom) * resolutionScale;							// scale is 2 ^ zoom + we account for resolutionScale
+	context.setTransform(1, 0, 0, 1, 0, 0); 										// Reset transform
+	var scale = Math.pow(2, map.zoom) * resolutionScale;							// Scale is 2 ^ zoom + we account for resolutionScale
 	context.scale(scale, scale);
 	var offset = mapProjection.fromLatLngToPoint(canvasLayer.getTopLeft());
 	context.translate(-offset.x, -offset.y);
@@ -69,7 +69,7 @@ function update() {
 	}
 }
 
-//Finds circle corresponding to selected marker
+// Finds circle corresponding to selected marker
 function selectCircle(marker) {
 	 for(var i=0; i<markers.length; i++){
 		 if(marker.position === markers[i].position){
@@ -81,19 +81,19 @@ function selectCircle(marker) {
 	 }
 }
 
- //Increase size of selected circle
+ // Increases size of selected circle
  function increaseRadius() {
 	 circles[circleSelectedNum].radius *=1.2;
 	 update();
  }
 
- //Decrease size of selected circle
+ // Decreases size of selected circle
  function decreaseRadius() {
 	 circles[circleSelectedNum].radius *=0.8;
 	 update();
  }
 
- //Increase size of all circles
+ // Increases size of all circles
  function allIncreased() {
 	for(var i=0; i < circles.length; i++){
 		circles[i].radius*=1.2;
@@ -101,7 +101,7 @@ function selectCircle(marker) {
 	update();
  }
 
- //Decrease size of all circles
+ // Decreases size of all circles
  function allDecreased() {
 	for(var i=0; i < circles.length; i++){
 		circles[i].radius*=0.8;
@@ -115,7 +115,7 @@ function selectCircle(marker) {
 // ===========
 
 
-//initialises global map variables
+// Initialises the map and global map variables
 function makeMap() {
 
 	map = new google.maps.Map(document.getElementById("map"), {
@@ -143,10 +143,12 @@ function makeMap() {
 
 }
 
+// Updates the map style to match the user's selection
 function updateMapStyle() {
 	map.setOptions( { styles: styles[document.getElementById("map_style").value] } );
 }
 
+// Reset - remove all markers and circles from the map, reset zoom and center to default location
 function resetMap(boolShowConfirmation){
 
 	if(boolShowConfirmation){
@@ -188,7 +190,7 @@ function resetMap(boolShowConfirmation){
 // Map Markers
 // ===========
 
-
+// Adds a tweet marker to the Google Map
 function addMarkerToMap(location, markerTitle, user){
 	var marker = new google.maps.Marker ({
 		position: location,
@@ -213,7 +215,7 @@ function addMarkerToMap(location, markerTitle, user){
 	map.fitBounds(bounds);
 }
 
-
+// Generates marker icons for the Google Map
 function makeMarkerIcon(markerColor){
         var markerImage = new google.maps.MarkerImage(
           'http://chart.googleapis.com/chart?chst=d_map_spin&chld=1.15|0|'+ markerColor +
@@ -225,18 +227,17 @@ function makeMarkerIcon(markerColor){
         return markerImage;
 }
 
-//only one info window allowed at a time
+// Adds the marker content when an infowindow is opened
+// Only one info window can be open at a time
 function populateInfoWindow(marker, infowindow, user) {
     // Check to make sure the infowindow is not already open on this marker.
     if (infowindow.marker != marker) {
 		infowindow.marker = marker;
 		var content;
 		if(user != null){
-			//turn twitter URLs into link to full tweet text
-			//but TODO: only run first time window is opened
+			//turn twitter URLs into link to full tweet text first time window is opened
 			var tweetLinkPosition = marker.title.lastIndexOf("https://t.co/");
 			if (tweetLinkPosition > -1 && marker.title.lastIndexOf("<a href") == -1){
-				//var tweetWithLinks = marker.title.replace(/https://t.co//g, "red");
 				var tweetWithLink = marker.title.substr(0, tweetLinkPosition) + "<a href='" + marker.title.substr(tweetLinkPosition) + "'>" + marker.title.substr(tweetLinkPosition) + "</a>";	
 				marker.title = tweetWithLink;
 			}
@@ -257,6 +258,8 @@ function populateInfoWindow(marker, infowindow, user) {
 // Graphs
 // ========
 
+// Creates a D3.js chart/graph for the given data attribute
+// Currently only language ('lang') or country are supported
 function makeGraph(attribute) {
 	
 	var data;
@@ -323,6 +326,7 @@ function makeGraph(attribute) {
     .text(titleText);
 }
 
+// Adds a tweet to the graph
 function addToGraph(tweet, attribute, country) {
 	
 	if(attribute == 'lang'){
@@ -357,6 +361,7 @@ function addToGraph(tweet, attribute, country) {
 	
 }
 
+// Removes currently displayed graph and clears data arrays
 function clearGraph(){
 	langs = [];
 	countries = [];
@@ -371,11 +376,11 @@ function clearGraph(){
 // Updating Display - Non-Map UI
 // =============================
 
-
+// Runs after the rest of the page has loaded
+// Adds event listeners, autocomplete, button logic (e.g. min/max dates)
 window.onload = function () {
 	//hide tweet count and graphs before we have tweet results
 	document.getElementById('show-on-results').style.display = 'none';
-	//makeGraph();
 	//assign click event listeners
 	document.getElementById('find_me').addEventListener('click', function() {
 		searchUserCurrentLocation();
@@ -426,15 +431,15 @@ window.onload = function () {
 		hideOverlay();
 	}
 };
-document.addEventListener('DOMContentLoaded', makeMap, false);   //Do I actually need this?
+document.addEventListener('DOMContentLoaded', makeMap, false);   
 
-//used to hide project documentation overlay onclick
+// Used to hide project documentation overlay onclick
 function hideOverlay(){
 	document.getElementById("overlayFrame").style.display = "none";
 }
 
-//updates URLs to match user search
-//currently not full RESTful URLs as these URLs cannot be refreshed
+// Updates URLs to match user search
+// Currently not fully RESTful URLs as these URLs cannot be refreshed
 function updateHistory(relativeURL){
 	if(!!(window.history && history.pushState)){	//check browser supports HTML5 History API
 		if(!window.location.href.toString().includes('trackr/search/')){
@@ -444,18 +449,19 @@ function updateHistory(relativeURL){
 	}
 }
 
+// Shows an error popup with the given error message over the search button
 function showErrorPopup(errorMsg){
 	document.getElementById('search').setAttribute('data-content', errorMsg);
 	$('#search').popover('show');
 }
 
-//increments tweet result count in show-on-results div
+// Increments tweet result count in show-on-results div
 function incrementResultCount(){
 	resultCount++;
 	document.getElementById('result_count').innerHTML = resultCount.toString();
 }
 
-//resets tweet result count in show-on-results div
+// Resets tweet result count in show-on-results div
 function resetResultCount(){
 	resultCount = 0;
 	document.getElementById('result_count').innerHTML = '0';
@@ -465,6 +471,7 @@ function resetResultCount(){
 // User Search
 // ===========
 
+// Finds the user's current location using Geolocation API
 function searchUserCurrentLocation() {
 
 	if(navigator.geolocation) {
@@ -493,6 +500,7 @@ function searchUserCurrentLocation() {
 	return false; //stops link reloading page
 }
 
+// Validates user input and makes an AJAX request for tweet data
 function search() {
 	if(document.getElementById('hashtag').value == '' && (searchLatitude == null) && (searchLongitude == null)) {
 		showErrorPopup("Please enter some search criteria.");
@@ -507,7 +515,6 @@ function search() {
 			var radiusForm = document.getElementById('search_radius');
 			var radius = radiusForm.options[radiusForm.selectedIndex].text;  //get currently selected label
 			var numericRadius = radiusForm.options[radiusForm.selectedIndex].value;
-			//var numericRadius = radiusForm.options[radiusForm.selectedIndex].value * 100;
 			radius = radius.replace(/ /g,''); //remove space
 			query.push('radius=' + radius + '&');
 			var pos = {
@@ -541,8 +548,8 @@ function search() {
 }
 
 
-//converts all whitespace chars to single space and removes special characters
-//important for security as we use their input in the URL
+// Converts all whitespace chars to single space and removes special characters
+// Important for security as we use user input in the URL
 function sanitizeUserInput(input) {
 	input = input.replace(/[`~!@#$%^&*§()_|+\-=?;:'",.<>\{\}\[\]\\\/]/gi, '');
 	return input.replace(/\s\s*/g, '&nbsp;');
@@ -552,7 +559,7 @@ function sanitizeUserInput(input) {
 //Server Communication
 //====================
 
-
+// Processes JSON data received from the server (AJAX callback)
 function processJSONResponse(){
 	if (this.readyState == 4 && this.status == 200) {	//response OK
 		resetResultCount();
@@ -572,8 +579,7 @@ function processJSONResponse(){
 	}
 }
 
-//Adds marker for tweet if it has coords or a user location. Displays location and tweet text only.
-//See https://developer.twitter.com/en/docs/tweets/data-dictionary/overview/tweet-object for details of tweet properties
+// Processes JSON data for a single tweet and adds a map marker if a location can be determined.
 function processTweet(tweet) {
 	var noLocation = true;
 	if(tweet.coordinates.coordinates != null){
@@ -589,9 +595,6 @@ function processTweet(tweet) {
 			addToGraph(tweet, 'lang', null);
 		}
 	}
-	//if(noLocation && tweet.place){
-		//TODO
-	//}
 	if(noLocation && tweet.user.location){ 										//if coordinates is null then use user.location (the location they set in their profile)
 		addToGraph(tweet, 'lang', null);
 		geocodersToReturn += 1;

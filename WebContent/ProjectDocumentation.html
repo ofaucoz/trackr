@@ -56,7 +56,8 @@
 					We use Wildfly 10.0 for the server with Hibernate (the persistence) and a MySQL database, with the back-end
           code implemented in Java.
           <br><br>
-          <a href="../doc/index.html">More details on the implementations here</a>
+					The full back-end Java docs are available <a href="../doc/index.html">here</a>.
+					
 				</li>
 				<li id="text"> <b> Front-end </b> <br><br>
 					The front-end has been developed as a single-page interface and is designed to be responsive for a range of
@@ -89,12 +90,12 @@
 					and the radius entered by the user. The size of the circles can then be increased and decreased to visually explore 
 					the locations included by different search radiuses. Multiple circles can be displayed and resized on the map at the same time.
 					<br><br>
-					<i>Geolocation API.</i> This HTML5 API is used to determine the user's location and enter it into the search location field. 
+					<i>Geolocation API.</i> This HTML5 API is used to determine the user's location and enter it into the search location field.<br><br>
 					<i>Semantic markup.</i> Semantic markup has been used in the HTML to make the structure of the web page clearer to those examining
 					the code. This improves readability for other developers but is most useful for automated parsing of the code, for example
 					so that text-to-speech software can determine which sections of a page are most important to the user.<br><br>
 					<i>SVG and D3.js</i> We use the D3.js library to draw the two SVG charts (which show the languages and countries represented in the
-					tweet results).
+					tweet results).<br><br>
 					<i>AJAX.</i> The client and server use AJAX to communicate. When the user presses Search, if their input is valid the client generates
 					an XMLHttpRequest which is sent to the server. The server queries the Twitter Search API and returns the tweet results as a JSON response.
 					Because this process is asynchronous, the page is still responsive whilst the request is in progress.<br><br>
