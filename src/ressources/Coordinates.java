@@ -9,7 +9,11 @@ import javax.persistence.Table;
 @javax.persistence.Entity
 @Table(name = "coordinates")
 public class Coordinates {
-	
+	/**
+	 * 
+	 * @param type Type of the coordinates
+	 * @param coordinates String representing the coordinates
+	 */
 	public Coordinates(String type, String coordinates) {
 		super();
 		this.type = type;

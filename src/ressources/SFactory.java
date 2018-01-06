@@ -7,6 +7,12 @@ import org.hibernate.SessionFactory;
 import org.hibernate.cfg.Configuration;
 
 public class SFactory {
+	/**
+	 * Create the Hibernate Session
+	 * 
+	 * @return Hibernate Session
+	 */
+	
 	public static Session getSession(){
 		SessionFactory factory = null;
 		try{

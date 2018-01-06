@@ -30,8 +30,15 @@ import ressources.User;
  */
 @WebServlet("search")
 public class SearchServlet extends HttpServlet implements Servlet {
+	/**
+	 * Servlet used to search for hashtag or location within Twitter API
+	 */
+	
 	private static final long serialVersionUID = 2L;
-
+	
+	/**
+	 * Constructor
+	 */
 	public SearchServlet() {
 		super();
 	}
@@ -40,7 +47,10 @@ public class SearchServlet extends HttpServlet implements Servlet {
 	public void init() throws ServletException {
 		super.init();
 	}
-
+	
+	/**
+	 * Get query that will build the url depending of the parameters and then ask TwitterBuilder for getting Tweet objects
+	 */
 	protected void doGet(HttpServletRequest request, HttpServletResponse response)
 			throws ServletException, IOException {
 		response.setCharacterEncoding("UTF-8");
@@ -76,7 +86,9 @@ public class SearchServlet extends HttpServlet implements Servlet {
 		out.println(objectMapper.writeValueAsString(listTweet));	
 		session.close();
 	}
-
+	/**
+	 * Since it's not useful, it's just a mirror to the doGet()
+	 */
 	protected void doPost(HttpServletRequest request, HttpServletResponse response)
 			throws ServletException, IOException {
 		doGet(request, response);

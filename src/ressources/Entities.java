@@ -10,6 +10,16 @@ import javax.persistence.Table;
 @Table(name = "entities")
 public class Entities {
 	
+	/**
+	 * 
+	 * Object representating the entities field in Tweets object
+	 * 
+	 * @param urls Field of entities in the tweets
+	 * @param hashtag Field of hashtag in the tweets
+	 * @param user_mentions Field of users_mentions in the tweets
+	 * @param symbols Field of symbols in the tweets
+	 */
+	
 	public Entities(String urls, String hashtag, String user_mentions, String symbols) {
 		super();
 		this.urls = urls;
