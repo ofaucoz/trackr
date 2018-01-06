@@ -15,7 +15,12 @@ import javax.persistence.TemporalType;
 @javax.persistence.Entity
 @Table(name = "user")
 public class User {
-	
+	/**
+	 *
+	 * User object which is inside the Tweet object
+	 * @param id_str is the identifier of those objects
+	 * 
+	 */
 	public User(Integer id, Integer utc_offset, Integer friends_count, String profile_image_url_https, Integer listed_count,
 			String profile_background_image_url, Boolean default_profile_image, Integer favourites_count,
 			String description, Date created_at, Boolean is_translator, String profile_background_image_url_https,

@@ -16,16 +16,17 @@ li {
   flex-grow: 1;
 }
 article{
-  font-family: 'Open Sans', monospace;
   color: #1C1C1C;
 }
 
 h3{
+  font-family: 'Open Sans', monospace;
   margin-top: 40px;
   padding-left: 50px;
 }
 
 #text{
+  font-family: 'Open Sans', monospace;
   display: block;
   border-radius: 15px;
   margin: 0.5em;
@@ -43,9 +44,20 @@ h3{
   background-color: #ffffff;
   text-align: left;
   margin-right: 0.5em;
+  border-radius: 15px;
+  padding: 1.5em;
+}
+
+img {
+	height: 100%;
+	width: 100%;
 }
 
 footer {
-  font-family: monospace;
+  font-family: 'Open Sans', monospace;
   padding-left: 20px;
+}
+
+body {
+	padding-top: 70px;
 }

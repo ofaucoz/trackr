@@ -30,8 +30,15 @@ import ressources.User;
  */
 @WebServlet("search")
 public class SearchServlet extends HttpServlet implements Servlet {
+	/**
+	 * Servlet used to search for hashtag or location within Twitter API
+	 */
+	
 	private static final long serialVersionUID = 2L;
-
+	
+	/**
+	 * Constructor
+	 */
 	public SearchServlet() {
 		super();
 	}
@@ -40,7 +47,10 @@ public class SearchServlet extends HttpServlet implements Servlet {
 	public void init() throws ServletException {
 		super.init();
 	}
-
+	
+	/**
+	 * Get query that will build the url depending of the parameters and then ask TwitterBuilder for getting Tweet objects
+	 */
 	protected void doGet(HttpServletRequest request, HttpServletResponse response)
 			throws ServletException, IOException {
 		response.setCharacterEncoding("UTF-8");
@@ -51,13 +61,24 @@ public class SearchServlet extends HttpServlet implements Servlet {
 		String latitude = request.getParameter("latitude");
 		String longitude = request.getParameter("longitude");
 		String radius = request.getParameter("radius");
+		String date = request.getParameter("date");
 		String url = "https://api.twitter.com/1.1/search/tweets.json?";
+		System.out.println("hashtag is " + hashtag);
+		System.out.println("latitude is " + latitude);
+		System.out.println("longitude is " + longitude);
+		System.out.println("radius is " + radius);
+		System.out.println("date is " + date);
 		if(hashtag != null) {
 			url += "q=" + hashtag;
 		}
 		if(latitude!=null&&longitude!=null&&radius!=null) {
-			url += "&geocode=" + latitude + "," + longitude + "," + radius;
+			url += "&geocode=" + latitude + "," + longitude + "," + "1mi";
 		}
+		if(date != null) {
+			url += "&until=" + date;
+		}
+		System.out.println(url);
+		//url += ("&count=100" + "&result_type=recent"); //request 100 (max possible) of the most recent matching tweets - need to change geocoding API before this is feasible
 		TwitterBuilder twitterBuilder = new TwitterBuilder();
 		ObjectMapper objectMapper = new ObjectMapper();
 		listTweet = twitterBuilder.queryAndCreate(url, session);
@@ -65,7 +86,9 @@ public class SearchServlet extends HttpServlet implements Servlet {
 		out.println(objectMapper.writeValueAsString(listTweet));	
 		session.close();
 	}
-
+	/**
+	 * Since it's not useful, it's just a mirror to the doGet()
+	 */
 	protected void doPost(HttpServletRequest request, HttpServletResponse response)
 			throws ServletException, IOException {
 		doGet(request, response);

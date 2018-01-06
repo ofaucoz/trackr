@@ -18,6 +18,13 @@ import org.hibernate.Session;
 @Table(name = "tweet")
 public class Tweet {
 	
+	/**
+	 *
+	 * Tweet object representing the tweet object from the Twitter API
+	 * @param id_str is the identifier of those objects
+	 * 
+	 */
+	
 	public Tweet(String in_reply_to_status_id_str, String in_reply_to_status_id, Date created_at, String source,
 			Integer retweet_count, Boolean retweeted, String geo, String in_reply_to_screen_name, Boolean is_quote_status,
 			Integer favorite_count, Integer id, String tweet_text, String place, String lang, Boolean favorited,

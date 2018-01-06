@@ -17,6 +17,7 @@
 	<script type="text/javascript" src="CanvasLayerOptions.js"></script>
 	<script type="text/javascript" src="CanvasLayer.js"></script>
 	<script type="text/javascript" src="script.js"></script>
+	<script src="https://d3js.org/d3.v4.min.js"></script>
 
 </head>
 
@@ -33,7 +34,7 @@
             <span class="icon-bar"></span>
             <span class="icon-bar"></span>
           </button>
-          <a class='navbar-brand' href='#'><span class="d-inline-block align-top"><img alt="logo" src="logo.jpg">#Trackr</span></a>
+          <a class='navbar-brand' href='#'><span class="d-inline-block align-top"><img alt="logo" src="logo.png">#Trackr</span></a>
          <span class="navbar-text">Twitter geographical trends, visualised</span>
 		</div>
         <div class="navbar-collapse collapse">
@@ -83,7 +84,7 @@
                     else self.map.setZoom(17);    -->
 				  <option value='0.01'>1 km</option>
                   <option value='0.05'>5 km</option>
-                  <option value='0.095' selected>10 km</option>
+                  <option value='0.1' selected>10 km</option>
                   <option value='0.5'>50 km</option>
                 </select>
                 <input id="increase" type="button" value="+" onclick="increaseRadius();" />
@@ -111,9 +112,10 @@
           </div>
 		  <div id="show-on-results">
           <div class='alert alert-info' id='result_box'><strong>Number of Tweets found: <span id='result_count'>0</span></strong></div>
-		  <div class='well'>
+		  <div class='well' id='graphDiv'>
 			<h4>Statistics</h4>
-			<p>(Graphs will go here)</p>
+			<svg width="250" height="200" id="svg1"><!-- graphs inserted here by JS --></svg>
+			<svg width="250" height="200" id="svg2"><!-- graphs inserted here by JS --></svg>
 		  </div>
 		  </div>
 		</div>

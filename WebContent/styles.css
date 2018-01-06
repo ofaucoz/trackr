@@ -47,15 +47,35 @@ label {
 canvas {-ms-touch-action: double-tap-zoom;}
 
 #overlayFrame {
-    position: fixed;
+    position: absolute;
     display: none; 
     width: 100%; 
     height: 100%;
-    top: 0;
+    top: 150;
     left: 0;
     right: 0;
     bottom: 0;
-    background-color: rgba(0,0,0,0.5); 
+    background-color: rgba(255,255,255,1); 
     z-index: 2; 
     cursor: pointer; 
+}
+
+#graphDiv {
+	text-align: center;
+}
+
+.bar {
+	fill: rgb(51, 122, 183);
+}
+
+.bar:hover {
+	fill: brown;
+}
+
+.axis--x path {
+	display: none;
+}
+
+#chart{
+	overflow-x: scroll;
 }
