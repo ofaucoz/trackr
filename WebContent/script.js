@@ -361,26 +361,10 @@ function makeGraph(attribute) {
     	.attr("transform", "translate(0," + height + ")")
     	.call(d3.axisBottom(x));
   
-	//svg.select("g")
-	//if(svgName == "#svg2"){
-		//g.selectAll("text")
-		//.attr("transform", "translate(-16,25) rotate(-65)");	
-	//}
-  
-  
-	/*svg.selectAll("text")
-	  .data(data)
-	  .enter()
-	  .append("text")
-	  .text(function(d) {
-		return d; })*/
-	  //.attr("transform"," translate(-16,25) rotate(-65)");
-  
 	g.append("g")
 	    .attr("class", "axis axis--y")
 	    .call(d3.axisRight(y).ticks(10).tickSize(width))
 	    .append("text")
-	    //.attr("transform", "translate(" + width + ",0)", "rotate(-90)")
 		.attr("transform", "rotate(-90)")
 	    .attr("y", 6)
 	    .attr("dy", "0.71em")
@@ -469,11 +453,11 @@ function search() {
 				};
 			circles.push({center: new google.maps.LatLng(pos), radius: numericRadius});
 		}
-		//if(document.getElementById('until_date').value) {
-			//TODO: not implemented on server side yet
-		//}
 		if(document.getElementById('hashtag').value) {
 			query.push('hashtag=' + sanitizeUserInput(document.getElementById('hashtag').value));
+		}
+		if(document.getElementById('until_date').value) {
+			query.push('&date=' + document.getElementById('until_date').value);
 		}
 		query = query.join('');
 		if(query.charAt(query.length - 1) == '&'){  //remove trailing &s
