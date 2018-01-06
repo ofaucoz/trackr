@@ -236,18 +236,15 @@ function populateInfoWindow(marker, infowindow, user) {
 			//but TODO: only run first time window is opened
 			var tweetLinkPosition = marker.title.lastIndexOf("https://t.co/");
 			if (tweetLinkPosition > -1 && marker.title.lastIndexOf("<a href") == -1){
-				console.log(marker.title);
 				//var tweetWithLinks = marker.title.replace(/https://t.co//g, "red");
 				var tweetWithLink = marker.title.substr(0, tweetLinkPosition) + "<a href='" + marker.title.substr(tweetLinkPosition) + "'>" + marker.title.substr(tweetLinkPosition) + "</a>";	
 				marker.title = tweetWithLink;
-				console.log(marker.title);
 			}
 			content = "<div style='display: flex; align-items: center;'><img src='" + user.profile_image_url_https + "' style='padding-right: 10px;'><span><strong>User: </strong><a href='https://twitter.com/" + user.screen_name + "'>" + user.name + "</a><br><strong>Location: </strong>" + marker.position + "<br><strong>Tweet: </strong>" + marker.title + "</span></div>";
 		}
 		else{
 			content = "<div><span><strong>Location: </strong>" + marker.position + "<br>" + marker.title + "</span></div>"
 		}
-		console.log(content);
 		infowindow.setContent(content);
         infowindow.open(map, marker);
         // Make sure the marker property is cleared if the infowindow is closed.
@@ -324,9 +321,9 @@ function hideOverlay(){
 }
 
 //remember these URLs don't exist so user can't refresh page or share URL - need to fix this somehow??
-function updateHistory(state, relativeURL){
+function updateHistory(relativeURL){
 	if(!!(window.history && history.pushState)){	//check browser supports HTML5 History API
-		//history.pushState('{}', null, './fml'); //add new history entry and change to that URL without reloading page
+		history.pushState('{}', null, './' + relativeURL); 
 	}
 }
 
@@ -471,7 +468,6 @@ function search() {
 					lng: searchLongitude,
 				};
 			circles.push({center: new google.maps.LatLng(pos), radius: numericRadius});
-			console.log("circle pushed");
 		}
 		//if(document.getElementById('until_date').value) {
 			//TODO: not implemented on server side yet
@@ -489,7 +485,7 @@ function search() {
 			request.onreadystatechange = processJSONResponse;
 			request.open('GET', 'http://localhost:8080/trackr/search?' + query, true);
 			request.send(null);
-			//updateHistory('null', query);	            //TODO: fix HTML5 history usage - this doesn't update page
+			updateHistory('search/' + query);	
 		}
 		else{
 			alert("Sorry, your browser doesn't support AJAX - please try using #trackr with a more up-to-date browser!");
@@ -534,7 +530,6 @@ function processJSONResponse(){
 function processTweet(tweet) {
 	var noLocation = true;
 	if(tweet.coordinates.coordinates != null){
-		console.log(tweet.coordinates);
 		var coords = JSON.parse(tweet.coordinates.coordinates); 
 		var pos = {
 			lat: coords[0],
@@ -551,7 +546,6 @@ function processTweet(tweet) {
 		//TODO
 	//}
 	if(noLocation && tweet.user.location){ 										//if coordinates is null then use user.location (the location they set in their profile)
-		console.log(tweet);
 		addToGraph(tweet, 'lang', null);
 		geocodersToReturn += 1;
 		geocoder.geocode({'address': tweet.user.location}, function(tweet){		//double anonymous functions to bake tweet data into callback
