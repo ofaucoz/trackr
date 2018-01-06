@@ -16,9 +16,9 @@ var searchLatitude;
 var searchLongitude;
 var userLocationSet;
 var resultCount;
-var debugMode = false;	//set this to false to disable hard-coded JSON "response" from "server"
 var circleSelectedNum = -1; //Select which circles to modify with canvas
 var quantityCircles = 0; //How many circles are in the map (for canvas)
+var data = [];
 
 // Map Themes
 // ==========
@@ -145,12 +145,30 @@ function updateMapStyle() {
 	map.setOptions( { styles: styles[document.getElementById("map_style").value] } );
 }
 
-function resetMap(){
+function resetMap(boolShowConfirmation){
 
-	$('#reset').popover('show');
+	if(boolShowConfirmation){
+		$('#reset').popover('show');
 
-	document.getElementById('reset_confirm').addEventListener('click', function() {
-		$('#reset').popover('hide');
+		document.getElementById('reset_confirm').addEventListener('click', function() {
+			$('#reset').popover('hide');
+			map.setCenter(defaultLocation);
+			map.setZoom(10);
+			for (var i = 0; i < markers.length; i++) {
+				markers[i].setMap(null); 	//removes marker from map
+			}
+			markers = [];
+			circles = [];
+			quantityCircles = 0;
+			update();						//redraw canvas
+		});
+
+		document.getElementById('reset_cancel').addEventListener('click', function() {
+			$('#reset').popover('hide');
+		});
+	}
+	
+	else {
 		map.setCenter(defaultLocation);
 		map.setZoom(10);
 		for (var i = 0; i < markers.length; i++) {
@@ -160,12 +178,8 @@ function resetMap(){
 		circles = [];
 		quantityCircles = 0;
 		update();						//redraw canvas
-	});
-
-	document.getElementById('reset_cancel').addEventListener('click', function() {
-		$('#reset').popover('hide');
-	});
-
+	}
+	
 }
 
 
@@ -248,8 +262,8 @@ function populateInfoWindow(marker, infowindow, user) {
 
 window.onload = function () {
 	//hide tweet count and graphs before we have tweet results
-	//document.getElementById('show-on-results').style.display = 'none';
-	makeGraph();
+	document.getElementById('show-on-results').style.display = 'none';
+	//makeGraph();
 	//assign click event listeners
 	document.getElementById('find_me').addEventListener('click', function() {
 		searchUserCurrentLocation();
@@ -258,7 +272,7 @@ window.onload = function () {
 		search();
 	});
 	document.getElementById('reset').addEventListener('click', function() {
-		resetMap();
+		resetMap(true);
 	});
 	document.getElementById('increase').addEventListener('click', function() {
 		increaseRadius();
@@ -319,23 +333,8 @@ function showErrorPopup(errorMsg){
 	$('#search').popover('show');
 }
 
-//THIS ARRAY NEEDS TO BE REPLACED WITH THE TWEET DATA
-//you could add tweet data to global arrays in processTweet() which gets called for each tweet in the response
-var data = 
-[
-{country: "Austria", count: 128167},
-{country: "Bulgaria", count: 451492},
-{country: "Costa Rica", count: 276782},
-{country: "Denmark", count: 427853},
-{country: "Estonia", count: 289702},
-{country: "Finnland", count: 228568},
-{country: "Georgia", count: 203415},
-{country: "Honduras", count: 223488},
-{country: "Indonesia", count: 245015},
-{country: "Jamaica", count: 289988},
-];
-
-function makeGraph() {
+function makeGraph(attribute) {
+	console.log(data);
 	var svg = d3.select("svg"),
     margin = {top: 20, right: 50, bottom: 70, left: 10},
     width = +svg.attr("width") - margin.left - margin.right,
@@ -343,8 +342,8 @@ function makeGraph() {
 
 	var x = d3.scaleBand().rangeRound([0, width]).padding(0.1);
 	var y = d3.scaleLinear().rangeRound([height, 0]);
-	x.domain(data.map(function(d) { return d.country; }));
-	y.domain([0, d3.max(data, function(d) { return d.count; })]);
+	x.domain(data[attribute].map(function(d) { return d.name; }));
+	y.domain([0, d3.max(data[attribute], function(d) { return d.count; })]);
 
 	var g = svg.append("g").attr("transform", "translate(" + margin.left + "," + margin.top + ")");
 
@@ -379,10 +378,10 @@ function makeGraph() {
 	g.selectAll(".tick:not(:first-of-type) line").attr("stroke", "#777").attr("stroke-dasharray", "2,2");
 	
 	g.selectAll(".bar")
-	    .data(data)
+	    .data(data[attribute])
 	    .enter().append("rect")
 	    .attr("class", "bar")
-	    .attr("x", function(d) { return x(d.country); })
+	    .attr("x", function(d) { return x(d.name); })
 	    .attr("y", function(d) { return y(d.count); })
 	    .attr("width", x.bandwidth())
 	    .attr("height", function(d) { return height - y(d.count); });
@@ -481,34 +480,22 @@ function sanitizeUserInput(input) {
 //====================
 
 
-function processJSONResponse(debugTweets){
-	if (debugMode) {
+function processJSONResponse(){
+	if (this.readyState == 4 && this.status == 200) {	//response OK
 		resetResultCount();
-		var tweets = JSON.parse(debugTweets); //DEBUG
-		for(var i = 0; i < tweets.statuses.length; i++){
-			processTweet(tweets.statuses[i]);
+		clearGraph();
+		resetMap(false);
+		tweets = JSON.parse(this.responseText);
+		var tweets = JSON.parse(this.responseText);
+		for(var i = 0; i < tweets.length; i++){
+			processTweet(tweets[i]);
 		}
 		if(userLocationSet) {
 			addMarkerToMap(defaultLocation, "Current Location");
 		}
 		update(); //redraw map overlay
 		document.getElementById('show-on-results').style.display = '';
-	}
-	else {
-		if (this.readyState == 4 && this.status == 200) {	//response OK
-			resetResultCount();
-			tweets = JSON.parse(this.responseText);
-			var tweets = JSON.parse(this.responseText);
-			for(var i = 0; i < tweets.length; i++){
-				processTweet(tweets[i]);
-			}
-			if(userLocationSet) {
-				addMarkerToMap(defaultLocation, "Current Location");
-			}
-			update(); //redraw map overlay
-			document.getElementById('show-on-results').style.display = '';
-			makeGraph();
-		}
+		makeGraph('lang');
 	}
 }
 
@@ -527,6 +514,7 @@ function processTweet(tweet) {
 			addMarkerToMap(new google.maps.LatLng(pos), tweet.text, tweet.user);
 			incrementResultCount();
 			noLocation = false;
+			addToGraph(tweet, 'lang');
 		}
 	}
 	//if(noLocation && tweet.place){
@@ -534,15 +522,24 @@ function processTweet(tweet) {
 	//}
 	if(noLocation && tweet.user.location){ 										//if coordinates is null then use user.location (the location they set in their profile)
 		console.log(tweet);
+		addToGraph(tweet, 'lang');
 		geocoder.geocode({'address': tweet.user.location}, function(tweet){		//double anonymous functions to bake tweet data into callback
 			return(function(results, status){
 				if (status == google.maps.GeocoderStatus.OK) {
 					if (results[0]) {
-						console.log("callback has location: " + results[0].geometry.location)
 						addMarkerToMap(results[0].geometry.location, tweet.text, tweet.user);
 						incrementResultCount();
 						update();
 						noLocation = false;
+						var country = null;
+						if(results[0].address_components != null){
+							for (var i = 0; i < results[0].address_components.length; i++){
+								if (results[0].address_components[i].types[0] == 'country'){
+										country = results[0].address_components[i].long_name;
+										console.log(country);
+								}
+							}
+						}
 					}
 				}
 				else{
@@ -555,6 +552,34 @@ function processTweet(tweet) {
 	else {
 		console.log("Error: tweet contained no coords or user location");
 	}
+}
+
+function addToGraph(tweet, attribute) {
+	if(attribute == 'lang' && (tweet.lang == 'und' || tweet.lang == 'zxx')){ //language not known){
+		return;
+	}
+	var w = -1; //index
+	if(tweet[attribute] != null){ 
+		if(data[attribute] != null){
+			for(var i = 0; i < data[attribute].length; i++){
+				if (data[attribute][i].name == tweet[attribute]){
+					w = i;
+					data[attribute][i].count += 1;
+				}
+			}
+		}
+	}
+	if (w == -1){
+		var newEntry = {name: tweet[attribute], count: 1};
+		data[attribute] = [];
+ 		data[attribute].push(newEntry);
+	}
+}
+
+function clearGraph(){
+	data = [];
+	var svg = d3.select("svg");
+	svg.selectAll("*").remove();
 }
 
 function incrementResultCount(){
