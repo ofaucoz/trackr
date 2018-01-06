@@ -333,8 +333,11 @@ function showErrorPopup(errorMsg){
 	$('#search').popover('show');
 }
 
-function makeGraph(attribute) {
-	console.log(data);
+function makeGraph(nameAttribute, countAttribute) {
+	
+	//var graphData = data[nameAttribute].map(function(name, i){ return { 'name' : name, 'count' : parseInt(countAttribute[i]) }; });
+	//console.log("graph data is");
+	//console.log(graphData);
 	var svg = d3.select("svg"),
     margin = {top: 20, right: 50, bottom: 70, left: 10},
     width = +svg.attr("width") - margin.left - margin.right,
@@ -342,8 +345,8 @@ function makeGraph(attribute) {
 
 	var x = d3.scaleBand().rangeRound([0, width]).padding(0.1);
 	var y = d3.scaleLinear().rangeRound([height, 0]);
-	x.domain(data[attribute].map(function(d) { return d.name; }));
-	y.domain([0, d3.max(data[attribute], function(d) { return d.count; })]);
+	x.domain(data.map(function(d) { return d.name; }));
+	y.domain([0, d3.max(data, function(d) { return d.count; })]);
 
 	var g = svg.append("g").attr("transform", "translate(" + margin.left + "," + margin.top + ")");
 
@@ -378,7 +381,7 @@ function makeGraph(attribute) {
 	g.selectAll(".tick:not(:first-of-type) line").attr("stroke", "#777").attr("stroke-dasharray", "2,2");
 	
 	g.selectAll(".bar")
-	    .data(data[attribute])
+	    .data(data)
 	    .enter().append("rect")
 	    .attr("class", "bar")
 	    .attr("x", function(d) { return x(d.name); })
@@ -495,7 +498,7 @@ function processJSONResponse(){
 		}
 		update(); //redraw map overlay
 		document.getElementById('show-on-results').style.display = '';
-		makeGraph('lang');
+		makeGraph('langs', 'langsCounts');
 	}
 }
 
@@ -554,26 +557,66 @@ function processTweet(tweet) {
 	}
 }
 
-function addToGraph(tweet, attribute) {
-	if(attribute == 'lang' && (tweet.lang == 'und' || tweet.lang == 'zxx')){ //language not known){
-		return;
+function addToGraph(tweet) {
+	
+	//var data = {'langs' : [], 'langsCounts' : [], 'countries' : [], 'countriesCounts' : []};
+	
+	/* var nameAttribute;
+	var countAttribute;
+	var tweetValue;
+	
+	if(attribute == 'lang'){
+		if(tweet.lang == 'und' || tweet.lang == 'zxx') {	//language not known
+			return;
+		}
+		else{
+			nameAttribute = 'langs';
+			countAttribute = 'langsCounts';
+			tweetValue = tweet.lang;
+		}
 	}
-	var w = -1; //index
-	if(tweet[attribute] != null){ 
-		if(data[attribute] != null){
-			for(var i = 0; i < data[attribute].length; i++){
-				if (data[attribute][i].name == tweet[attribute]){
-					w = i;
-					data[attribute][i].count += 1;
-				}
-			}
+	else if(attribute == 'country'){
+		nameAttribute = 'countries';
+		countAttribute = 'countriesCounts';
+		tweetValue = ''; //TODO
+	}
+	//more graph attributes can be added here
+	
+	console.log(nameAttribute);
+	console.log(countAttribute);
+	console.log(data[nameAttribute]);
+	console.log(data[countAttribute]);
+	
+	var w = -1; //index 
+	for(var i = 0; i < data[nameAttribute].length; i++){
+		if (data[nameAttribute][i] == tweetValue){
+			w = i;
+			data[countAttribute][i] += 1;
 		}
 	}
 	if (w == -1){
-		var newEntry = {name: tweet[attribute], count: 1};
-		data[attribute] = [];
- 		data[attribute].push(newEntry);
+		console.log("making new entry");
+		data[nameAttribute].push(tweetValue);
+		data[countAttribute].push(1);
 	}
+	console.log(data); */
+	
+	if(tweet.lang == null || tweet.lang == 'und' || tweet.lang == 'zxx') {	//language not known
+		return;
+	}
+	
+	var w = -1; //array index
+	for(var i=0; i < data.length; i++){
+		w=-1; 
+		if (data[i].name == tweet.lang){
+			w = i;
+			data[i].count += 1;
+		}
+	}
+	if (w == -1){
+		data.push({name: tweet.lang, count: 1});
+	}
+	
 }
 
 function clearGraph(){
