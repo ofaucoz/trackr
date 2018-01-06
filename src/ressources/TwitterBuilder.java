@@ -188,7 +188,8 @@ public class TwitterBuilder {
 					try {
 						value = (Date) format.parse((String) entry.getValue());
 					} catch (ParseException e1) {
-						String value_string = (String) entry.getValue();
+						value = (String) entry.getValue();
+						String value_string = (String) value;
 						//value_string = EmojiParser.removeAllEmojis((String) value);
 						value_string = value_string.replaceAll("\\p{So}+", ""); //remove emoji
 						value = value_string;
@@ -241,9 +242,9 @@ public class TwitterBuilder {
 			//}
 			//there are some emoji unhandled by EmojiParser - these cause an exception in the database on Windows - so skip the tweet
 			//catch(GenericJDBCException exception) {
-			//	System.out.println(exception.getStackTrace());
-			//	session.getTransaction().rollback();
-			//	session.clear();
+				//System.out.println(exception.getStackTrace());
+				//session.getTransaction().rollback();
+				//session.clear();
 			//}
 		}
 		session.close();
