@@ -179,8 +179,7 @@ function resetMap(boolShowConfirmation){
 			markers[i].setMap(null); 	//removes marker from map
 		}
 		markers = [];
-		circles = [];
-		quantityCircles = 0;
+		//do not remove circles
 		update();						//redraw canvas
 	}
 	
