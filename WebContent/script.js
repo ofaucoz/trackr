@@ -399,6 +399,22 @@ function makeGraph(attribute) {
 	    .attr("y", function(d) { return y(d.count); })
 	    .attr("width", x.bandwidth())
 	    .attr("height", function(d) { return height - y(d.count); });
+	
+	var titleText;
+	if (svgName == "#svg1"){
+		titleText = "Languages";
+	}
+	else if (svgName == "#svg2") {
+		titleText = "Countries";
+	}
+	
+	g.append("text")
+    .attr("x", (width / 2))             
+    .attr("y", 0 - (margin.top / 2))
+    .attr("text-anchor", "middle")  
+    .style("font-size", "10px") 
+    .style("text-decoration", "underline")  
+    .text(titleText);
 }
 
 
