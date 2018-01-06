@@ -165,9 +165,9 @@ public class TwitterBuilder {
 
 	public List<Tweet> createTable(List<Map<String, Object>> values, Session session) {
 		List<Tweet> listTweet = new ArrayList<Tweet>();
-		if (values.size() == 1 && values.get(0).isEmpty())
+		if (values.size() == 1 && values.get(0).isEmpty()) {
 			return listTweet;
-		System.out.println();
+		}
 		for (int i = 0; i < values.size(); i++) {
 			Entities e = new Entities();
 			User u = new User();
@@ -237,16 +237,14 @@ public class TwitterBuilder {
 				session.saveOrUpdate(c);
 				session.saveOrUpdate(t);
 				session.getTransaction().commit();
-				session.close();
-				session = SFactory.getSession();
+				session.clear();
 				listTweet.add(t);
 			}
 			//there are some emoji unhandled by EmojiParser - these cause an exception in the database on Windows - so skip the tweet
 			catch(GenericJDBCException exception) {
 				System.out.println(exception.getStackTrace());
 				session.getTransaction().rollback();
-				session.close();
-				session = SFactory.getSession();
+				session.clear();
 			}
 		}
 		session.close();

@@ -620,7 +620,3 @@ function resetResultCount(){
 	resultCount = 0;
 	document.getElementById('result_count').innerHTML = '0';
 }
-
-//TODO: cache queries maybe? to use another HTML5 featureType
-//TODO: semantic markup and ARIA framework
-//TODO: graph plotting from tweet data - Gaspar
