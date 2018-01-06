@@ -610,7 +610,9 @@ function addToGraph(tweet, attribute, country) {
 function clearGraph(){
 	langs = [];
 	countries = [];
-	var svg = d3.select("svg");
+	var svg = d3.select("#svg1");
+	svg.selectAll("*").remove();
+	var svg = d3.select("#svg2");
 	svg.selectAll("*").remove();
 	geocodersToReturn = 0;
 }
