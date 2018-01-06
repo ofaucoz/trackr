@@ -18,7 +18,8 @@ var userLocationSet;
 var resultCount;
 var circleSelectedNum = -1; //Select which circles to modify with canvas
 var quantityCircles = 0; //How many circles are in the map (for canvas)
-var data = [];
+var langs = [];
+var countries = [];
 
 // Map Themes
 // ==========
@@ -333,11 +334,15 @@ function showErrorPopup(errorMsg){
 	$('#search').popover('show');
 }
 
-function makeGraph(nameAttribute, countAttribute) {
+function makeGraph(attribute) {
 	
-	//var graphData = data[nameAttribute].map(function(name, i){ return { 'name' : name, 'count' : parseInt(countAttribute[i]) }; });
-	//console.log("graph data is");
-	//console.log(graphData);
+	var data;
+	if(attribute == 'lang'){
+		data = langs;
+	}
+	else if(attribute == 'country'){
+		data = countries;
+	}
 	var svg = d3.select("svg"),
     margin = {top: 20, right: 50, bottom: 70, left: 10},
     width = +svg.attr("width") - margin.left - margin.right,
@@ -498,7 +503,7 @@ function processJSONResponse(){
 		}
 		update(); //redraw map overlay
 		document.getElementById('show-on-results').style.display = '';
-		makeGraph('langs', 'langsCounts');
+		makeGraph('lang');
 	}
 }
 
@@ -517,7 +522,7 @@ function processTweet(tweet) {
 			addMarkerToMap(new google.maps.LatLng(pos), tweet.text, tweet.user);
 			incrementResultCount();
 			noLocation = false;
-			addToGraph(tweet, 'lang');
+			addToGraph(tweet, 'lang', null);
 		}
 	}
 	//if(noLocation && tweet.place){
@@ -525,7 +530,7 @@ function processTweet(tweet) {
 	//}
 	if(noLocation && tweet.user.location){ 										//if coordinates is null then use user.location (the location they set in their profile)
 		console.log(tweet);
-		addToGraph(tweet, 'lang');
+		addToGraph(tweet, 'lang', null);
 		geocoder.geocode({'address': tweet.user.location}, function(tweet){		//double anonymous functions to bake tweet data into callback
 			return(function(results, status){
 				if (status == google.maps.GeocoderStatus.OK) {
@@ -557,70 +562,46 @@ function processTweet(tweet) {
 	}
 }
 
-function addToGraph(tweet) {
-	
-	//var data = {'langs' : [], 'langsCounts' : [], 'countries' : [], 'countriesCounts' : []};
-	
-	/* var nameAttribute;
-	var countAttribute;
-	var tweetValue;
+function addToGraph(tweet, attribute, country) {
 	
 	if(attribute == 'lang'){
-		if(tweet.lang == 'und' || tweet.lang == 'zxx') {	//language not known
+		if(tweet.lang == null || tweet.lang == 'und' || tweet.lang == 'zxx') {	//language not known
 			return;
 		}
-		else{
-			nameAttribute = 'langs';
-			countAttribute = 'langsCounts';
-			tweetValue = tweet.lang;
+		var w = -1; //array index
+		for(var i=0; i < langs.length; i++){
+			w=-1; 
+			if (langs[i].name == tweet.lang){
+				w = i;
+				langs[i].count += 1;
+			}
+		}
+		if (w == -1){
+			langs.push({name: tweet.lang, count: 1});
 		}
 	}
-	else if(attribute == 'country'){
-		nameAttribute = 'countries';
-		countAttribute = 'countriesCounts';
-		tweetValue = ''; //TODO
-	}
-	//more graph attributes can be added here
 	
-	console.log(nameAttribute);
-	console.log(countAttribute);
-	console.log(data[nameAttribute]);
-	console.log(data[countAttribute]);
-	
-	var w = -1; //index 
-	for(var i = 0; i < data[nameAttribute].length; i++){
-		if (data[nameAttribute][i] == tweetValue){
-			w = i;
-			data[countAttribute][i] += 1;
+	if(attribute == 'country'){
+		console.log("this should never run right now");
+		var w = -1; //array index
+		for(var i=0; i < countries.length; i++){
+			w=-1; 
+			if (countries[i].name == country){
+				w = i;
+				countries[i].count += 1;
+			}
+		}
+		if (w == -1){
+			countries.push({name: country, count: 1});
 		}
 	}
-	if (w == -1){
-		console.log("making new entry");
-		data[nameAttribute].push(tweetValue);
-		data[countAttribute].push(1);
-	}
-	console.log(data); */
 	
-	if(tweet.lang == null || tweet.lang == 'und' || tweet.lang == 'zxx') {	//language not known
-		return;
-	}
-	
-	var w = -1; //array index
-	for(var i=0; i < data.length; i++){
-		w=-1; 
-		if (data[i].name == tweet.lang){
-			w = i;
-			data[i].count += 1;
-		}
-	}
-	if (w == -1){
-		data.push({name: tweet.lang, count: 1});
-	}
 	
 }
 
 function clearGraph(){
-	data = [];
+	langs = [];
+	countries = [];
 	var svg = d3.select("svg");
 	svg.selectAll("*").remove();
 }
