@@ -254,87 +254,8 @@ function populateInfoWindow(marker, infowindow, user) {
     }
 }
 
-
-// Updating Display - Non-Map UI
-// =============================
-
-
-window.onload = function () {
-	//hide tweet count and graphs before we have tweet results
-	document.getElementById('show-on-results').style.display = 'none';
-	//makeGraph();
-	//assign click event listeners
-	document.getElementById('find_me').addEventListener('click', function() {
-		searchUserCurrentLocation();
-	});
-	document.getElementById('search').addEventListener('click', function() {
-		search();
-	});
-	document.getElementById('reset').addEventListener('click', function() {
-		resetMap(true);
-	});
-	document.getElementById('increase').addEventListener('click', function() {
-		increaseRadius();
-	});
-	document.getElementById('decrease').addEventListener('click', function() {
-		decreaseRadius();
-	});
-	document.getElementById('increaseAll').addEventListener('click', function() {
-		allIncreased();
-	});
-	document.getElementById('decreaseAll').addEventListener('click', function() {
-		allDecreased();
-	});
-	//add address autocomplete, get coords automatically on address change
-	var autocomplete = new google.maps.places.Autocomplete(document.getElementById('search_address'));
-	google.maps.event.addListener(autocomplete, 'place_changed', function() {
-		searchLatitude = autocomplete.getPlace().geometry.location.lat();
-		searchLongitude = autocomplete.getPlace().geometry.location.lng();
-	});
-
-	//fill map styles select element from styles array
-	document.getElementById("map_style").innerHTML = Object.keys(styles).map(function(styleName, styleJSON) {
-		return '<option value="'+styleName+'">'+styleName+'</option>'; })
-	.join('');
-	//set date limits based on current date - advisory for user only, still need to check form input
-	var currentDate = new Date(Date.now());
-	var minDate = new Date(new Date() - 86400000 * 7).toISOString().split('T')[0]; //7 days before current date
-	currentDate = currentDate.toISOString().split('T')[0];
-	document.getElementById("until_date").setAttribute("max", currentDate);
-	document.getElementById("until_date").setAttribute("min", minDate);
-	document.getElementById("overlayButton").onclick = function() {
-		document.getElementById("overlayButtonTab").classList.add("active");
-		document.getElementById("mapButtonTab").classList.remove("active");
-		document.getElementById("overlayFrame").style.display = "block";
-	}
-	document.getElementById("mapButton").onclick = function(){
-		document.getElementById("mapButtonTab").classList.add("active");
-		document.getElementById("overlayButtonTab").classList.remove("active");
-		hideOverlay();
-	}
-};
-document.addEventListener('DOMContentLoaded', makeMap, false);   //Do I actually need this?
-
-//used to hide project documentation overlay onclick
-function hideOverlay(){
-	document.getElementById("overlayFrame").style.display = "none";
-}
-
-//remember these URLs don't exist
-function updateHistory(relativeURL){
-	if(!!(window.history && history.pushState)){	//check browser supports HTML5 History API
-		console.log(window.location.href);
-		if(!window.location.href.toString().includes('trackr/search/')){
-			relativeURL = 'search/' + relativeURL;
-		}
-		history.replaceState('{}', null, './' + relativeURL); 
-	}
-}
-
-function showErrorPopup(errorMsg){
-	document.getElementById('search').setAttribute('data-content', errorMsg);
-	$('#search').popover('show');
-}
+// Graphs
+// ========
 
 function makeGraph(attribute) {
 	
@@ -402,6 +323,144 @@ function makeGraph(attribute) {
     .text(titleText);
 }
 
+function addToGraph(tweet, attribute, country) {
+	
+	if(attribute == 'lang'){
+		if(tweet.lang == null || tweet.lang == 'und' || tweet.lang == 'zxx') {	//language not known
+			return;
+		}
+		var w = -1; //array index
+		for(var i=0; i < langs.length; i++){
+			if (langs[i].name == tweet.lang){
+				w = i;
+				langs[i].count += 1;
+			}
+		}
+		if (w == -1){
+			langs.push({name: tweet.lang, count: 1});
+		}
+	}
+	
+	if(attribute == 'country'){
+		var w = -1; //array index
+		for(var i=0; i < countries.length; i++){
+			if (countries[i].name == country){
+				w = i;
+				countries[i].count += 1;
+			}
+		}
+		if (w == -1){
+			countries.push({name: country, count: 1});
+		}
+	}
+	
+	
+}
+
+function clearGraph(){
+	langs = [];
+	countries = [];
+	var svg = d3.select("#svg1");
+	svg.selectAll("*").remove();
+	var svg = d3.select("#svg2");
+	svg.selectAll("*").remove();
+	geocodersToReturn = 0;
+}
+
+
+// Updating Display - Non-Map UI
+// =============================
+
+
+window.onload = function () {
+	//hide tweet count and graphs before we have tweet results
+	document.getElementById('show-on-results').style.display = 'none';
+	//makeGraph();
+	//assign click event listeners
+	document.getElementById('find_me').addEventListener('click', function() {
+		searchUserCurrentLocation();
+	});
+	document.getElementById('search').addEventListener('click', function() {
+		search();
+	});
+	document.getElementById('reset').addEventListener('click', function() {
+		resetMap(true);
+	});
+	document.getElementById('increase').addEventListener('click', function() {
+		increaseRadius();
+	});
+	document.getElementById('decrease').addEventListener('click', function() {
+		decreaseRadius();
+	});
+	document.getElementById('increaseAll').addEventListener('click', function() {
+		allIncreased();
+	});
+	document.getElementById('decreaseAll').addEventListener('click', function() {
+		allDecreased();
+	});
+	//add address autocomplete, get coords automatically on address change
+	var autocomplete = new google.maps.places.Autocomplete(document.getElementById('search_address'));
+	google.maps.event.addListener(autocomplete, 'place_changed', function() {
+		searchLatitude = autocomplete.getPlace().geometry.location.lat();
+		searchLongitude = autocomplete.getPlace().geometry.location.lng();
+	});
+
+	//fill map styles select element from styles array
+	document.getElementById("map_style").innerHTML = Object.keys(styles).map(function(styleName, styleJSON) {
+		return '<option value="'+styleName+'">'+styleName+'</option>'; })
+	.join('');
+	//set date limits based on current date - advisory for user only, still need to check form input
+	var currentDate = new Date(Date.now());
+	var minDate = new Date(new Date() - 86400000 * 7).toISOString().split('T')[0]; //7 days before current date
+	currentDate = currentDate.toISOString().split('T')[0];
+	document.getElementById("until_date").setAttribute("max", currentDate);
+	document.getElementById("until_date").setAttribute("min", minDate);
+	document.getElementById("overlayButton").onclick = function() {
+		document.getElementById("overlayButtonTab").classList.add("active");
+		document.getElementById("mapButtonTab").classList.remove("active");
+		document.getElementById("overlayFrame").style.display = "block";
+	}
+	document.getElementById("mapButton").onclick = function(){
+		document.getElementById("mapButtonTab").classList.add("active");
+		document.getElementById("overlayButtonTab").classList.remove("active");
+		hideOverlay();
+	}
+};
+document.addEventListener('DOMContentLoaded', makeMap, false);   //Do I actually need this?
+
+//used to hide project documentation overlay onclick
+function hideOverlay(){
+	document.getElementById("overlayFrame").style.display = "none";
+}
+
+//updates URLs to match user search
+//currently not full RESTful URLs as these URLs cannot be refreshed
+function updateHistory(relativeURL){
+	if(!!(window.history && history.pushState)){	//check browser supports HTML5 History API
+		if(!window.location.href.toString().includes('trackr/search/')){
+			relativeURL = 'search/' + relativeURL;
+		}
+		history.replaceState('{}', null, './' + relativeURL); 
+	}
+}
+
+function showErrorPopup(errorMsg){
+	document.getElementById('search').setAttribute('data-content', errorMsg);
+	$('#search').popover('show');
+}
+
+//increments tweet result count in show-on-results div
+function incrementResultCount(){
+	resultCount++;
+	document.getElementById('result_count').innerHTML = resultCount.toString();
+}
+
+//resets tweet result count in show-on-results div
+function resetResultCount(){
+	resultCount = 0;
+	document.getElementById('result_count').innerHTML = '0';
+}
+
 
 // User Search
 // ===========
@@ -435,7 +494,7 @@ function searchUserCurrentLocation() {
 }
 
 function search() {
-	if(!document.getElementById('hashtag').value && (searchLatitude === null) && (searchLongitude===null)) {
+	if(document.getElementById('hashtag').value == '' && (searchLatitude == null) && (searchLongitude == null)) {
 		showErrorPopup("Please enter some search criteria.");
 	}
 	else {	//construct server API query
@@ -569,58 +628,4 @@ function processTweet(tweet) {
 	else {
 		console.log("Error: tweet contained no coords or user location");
 	}
-}
-
-function addToGraph(tweet, attribute, country) {
-	
-	if(attribute == 'lang'){
-		if(tweet.lang == null || tweet.lang == 'und' || tweet.lang == 'zxx') {	//language not known
-			return;
-		}
-		var w = -1; //array index
-		for(var i=0; i < langs.length; i++){
-			if (langs[i].name == tweet.lang){
-				w = i;
-				langs[i].count += 1;
-			}
-		}
-		if (w == -1){
-			langs.push({name: tweet.lang, count: 1});
-		}
-	}
-	
-	if(attribute == 'country'){
-		var w = -1; //array index
-		for(var i=0; i < countries.length; i++){
-			if (countries[i].name == country){
-				w = i;
-				countries[i].count += 1;
-			}
-		}
-		if (w == -1){
-			countries.push({name: country, count: 1});
-		}
-	}
-	
-	
-}
-
-function clearGraph(){
-	langs = [];
-	countries = [];
-	var svg = d3.select("#svg1");
-	svg.selectAll("*").remove();
-	var svg = d3.select("#svg2");
-	svg.selectAll("*").remove();
-	geocodersToReturn = 0;
-}
-
-function incrementResultCount(){
-	resultCount++;
-	document.getElementById('result_count').innerHTML = resultCount.toString();
-}
-
-function resetResultCount(){
-	resultCount = 0;
-	document.getElementById('result_count').innerHTML = '0';
 }
