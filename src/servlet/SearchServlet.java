@@ -63,11 +63,11 @@ public class SearchServlet extends HttpServlet implements Servlet {
 		String radius = request.getParameter("radius");
 		String date = request.getParameter("date");
 		String url = "https://api.twitter.com/1.1/search/tweets.json?";
-		System.out.println("hashtag is " + hashtag);
-		System.out.println("latitude is " + latitude);
-		System.out.println("longitude is " + longitude);
-		System.out.println("radius is " + radius);
-		System.out.println("date is " + date);
+		//System.out.println("hashtag is " + hashtag);
+		//System.out.println("latitude is " + latitude);
+		//System.out.println("longitude is " + longitude);
+		//System.out.println("radius is " + radius);
+		//System.out.println("date is " + date);
 		if(hashtag != null) {
 			url += "q=" + hashtag;
 		}
@@ -77,7 +77,6 @@ public class SearchServlet extends HttpServlet implements Servlet {
 		if(date != null) {
 			url += "&until=" + date;
 		}
-		System.out.println(url);
 		//url += ("&count=100" + "&result_type=recent"); //request 100 (max possible) of the most recent matching tweets - need to change geocoding API before this is feasible
 		TwitterBuilder twitterBuilder = new TwitterBuilder();
 		ObjectMapper objectMapper = new ObjectMapper();

@@ -239,8 +239,9 @@ public class TwitterBuilder {
 					} catch (ParseException e1) {
 						value = (String) entry.getValue();
 						String value_string = (String) value;
-						value_string = EmojiParser.removeAllEmojis((String) value);
+						//value_string = EmojiParser.removeAllEmojis((String) value);
 						value_string = value_string.replaceAll("\\p{So}+", ""); //remove emoji
+						//value_string = value_string.replaceAll("[^\\x00-\\x7F]", ""); //DEBUG remove all non-ascii chars
 						value = value_string;
 					}
 				} else if (entry.getValue() instanceof JSONArray) {
@@ -280,7 +281,7 @@ public class TwitterBuilder {
 			t.setEntities(e);
 			t.setCoordinates(c);
 			session.getTransaction().begin();
-		try {
+		//try {
 			session.saveOrUpdate(u);
 			session.saveOrUpdate(e);
 			session.saveOrUpdate(c);
@@ -288,13 +289,13 @@ public class TwitterBuilder {
 			session.getTransaction().commit();
 			session.clear();
 			listTweet.add(t);
-		}
+		//}
 		//there are some emoji unhandled by EmojiParser - these cause an exception in the database on Windows - so skip the tweet
-		catch(GenericJDBCException exception) {
-			System.out.println(exception.getStackTrace());
-			session.getTransaction().rollback();
-			session.clear();
-		}
+		//catch(GenericJDBCException exception) {
+			//System.out.println(exception.getStackTrace());
+			//session.getTransaction().rollback();
+			//session.clear();
+		//}
 	}
 	session.close();
 	return listTweet;

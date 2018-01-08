@@ -530,9 +530,8 @@ function search() {
 		}
 		query = query.join('');
 		if(query.charAt(query.length - 1) == '&'){  //remove trailing &s
-			query = query.substr(0, query.length - 2);
+			query = query.substr(0, query.length - 1);
 		}
-
 		if(window.XMLHttpRequest){
 			var request = new XMLHttpRequest();
 			request.onreadystatechange = processJSONResponse;
@@ -581,19 +580,31 @@ function processJSONResponse(){
 function processTweet(tweet) {
 	var noLocation = true;
 	if(tweet.coordinates.coordinates != null){
+		console.log("Debug: got coordinates");
 		var coords = JSON.parse(tweet.coordinates.coordinates); 
 		var pos = {
-			lat: coords[0],
-			lng: coords[1],
+			//these have been swapped round to match geoJSON format
+			lat: coords[1],
+			lng: coords[0],
 		};
-		if(Math.round(pos.lat) != -74){	//bizarrely, tweets often erroneously have coords for Antarctica
-			addMarkerToMap(new google.maps.LatLng(pos), tweet.text, tweet.user);
-			incrementResultCount();
-			noLocation = false;
-			addToGraph(tweet, 'lang', null);
-		}
+		addMarkerToMap(new google.maps.LatLng(pos), tweet.text, tweet.user);
+		incrementResultCount();
+		noLocation = false;
+		addToGraph(tweet, 'lang', null);
 	}
-	if(noLocation && tweet.user.location){ 										//if coordinates is null then use user.location (the location they set in their profile)
+	else if(tweet.place && tweet.place.bounding_box && tweet.place.bounding_box.coordinates){
+		console.log("Debug: got place coordinates");
+		var coords = JSON.parse(tweet.bounding_box.coordinates[0]); 
+		var pos = {
+			//these have been swapped round to match geoJSON format
+			lat: coords[1],
+			lng: coords[0],
+		};
+		addMarkerToMap(new google.maps.LatLng(pos), tweet.text, tweet.user);
+		incrementResultCount();
+		addToGraph(tweet, 'lang', null);
+	}
+	else if(tweet.user.location){ 												//if no coordinates then use user.location (the location they set in their profile)
 		geocodersToReturn += 1;
 		geocoder.geocode({'address': tweet.user.location}, function(tweet){		//double anonymous functions to bake tweet data into callback
 			return(function(results, status){
@@ -603,7 +614,6 @@ function processTweet(tweet) {
 						addToGraph(tweet, 'lang', null);
 						incrementResultCount();
 						update();
-						noLocation = false;
 						var country = null;
 						if(results[0].address_components != null){
 							for (var i = 0; i < results[0].address_components.length; i++){
